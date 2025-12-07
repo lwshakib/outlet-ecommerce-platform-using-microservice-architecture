@@ -12,6 +12,7 @@ export default function PlaceOrder() {
     state: '',
     zipCode: '',
     country: 'United States',
+    paymentMethod: 'card',
     cardNumber: '',
     cardName: '',
     expiryDate: '',
@@ -32,8 +33,15 @@ export default function PlaceOrder() {
     // Handle order placement logic here
     console.log('Order placed:', formData);
     // In a real app, you would submit to an API
-    // For now, we'll just show a success message or redirect
-    alert('Order placed successfully!');
+    // For Stripe, you would integrate with Stripe API
+    // For Cash On Delivery, you would just create the order
+    const paymentMethodName =
+      formData.paymentMethod === 'cod'
+        ? 'Cash On Delivery'
+        : formData.paymentMethod === 'stripe'
+        ? 'Stripe'
+        : 'Card';
+    alert(`Order placed successfully! Payment method: ${paymentMethodName}`);
     navigate('/');
   };
 
@@ -233,92 +241,204 @@ export default function PlaceOrder() {
               <h2 className="text-lg font-medium text-gray-900">
                 Payment Information
               </h2>
-              <div className="mt-4 grid grid-cols-1 gap-y-6">
-                <div>
-                  <label
-                    htmlFor="cardNumber"
-                    className="block text-sm font-medium text-gray-700"
-                  >
-                    Card number
-                  </label>
-                  <div className="mt-1">
-                    <input
-                      type="text"
-                      id="cardNumber"
-                      name="cardNumber"
-                      required
-                      value={formData.cardNumber}
-                      onChange={handleChange}
-                      className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm px-3 py-2 border"
-                      placeholder="1234 5678 9012 3456"
-                    />
-                  </div>
-                </div>
 
-                <div>
-                  <label
-                    htmlFor="cardName"
-                    className="block text-sm font-medium text-gray-700"
-                  >
-                    Name on card
-                  </label>
-                  <div className="mt-1">
+              {/* Payment Method Selection */}
+              <div className="mt-4">
+                <label className="block text-sm font-medium text-gray-700 mb-3">
+                  Payment Method
+                </label>
+                <div className="space-y-3">
+                  <div className="flex items-center">
                     <input
-                      type="text"
-                      id="cardName"
-                      name="cardName"
-                      required
-                      value={formData.cardName}
+                      id="payment-card"
+                      name="paymentMethod"
+                      type="radio"
+                      value="card"
+                      checked={formData.paymentMethod === 'card'}
                       onChange={handleChange}
-                      className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm px-3 py-2 border"
+                      className="h-4 w-4 border-gray-300 text-indigo-600 focus:ring-indigo-500"
                     />
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-3 gap-x-4">
-                  <div className="col-span-2">
                     <label
-                      htmlFor="expiryDate"
+                      htmlFor="payment-card"
+                      className="ml-3 block text-sm font-medium text-gray-700"
+                    >
+                      Card
+                    </label>
+                  </div>
+                  <div className="flex items-center">
+                    <input
+                      id="payment-stripe"
+                      name="paymentMethod"
+                      type="radio"
+                      value="stripe"
+                      checked={formData.paymentMethod === 'stripe'}
+                      onChange={handleChange}
+                      className="h-4 w-4 border-gray-300 text-indigo-600 focus:ring-indigo-500"
+                    />
+                    <label
+                      htmlFor="payment-stripe"
+                      className="ml-3 block text-sm font-medium text-gray-700"
+                    >
+                      Stripe
+                    </label>
+                  </div>
+                  <div className="flex items-center">
+                    <input
+                      id="payment-cod"
+                      name="paymentMethod"
+                      type="radio"
+                      value="cod"
+                      checked={formData.paymentMethod === 'cod'}
+                      onChange={handleChange}
+                      className="h-4 w-4 border-gray-300 text-indigo-600 focus:ring-indigo-500"
+                    />
+                    <label
+                      htmlFor="payment-cod"
+                      className="ml-3 block text-sm font-medium text-gray-700"
+                    >
+                      Cash On Delivery
+                    </label>
+                  </div>
+                </div>
+              </div>
+
+              {/* Card Details - Only show for Card or Stripe */}
+              {(formData.paymentMethod === 'card' ||
+                formData.paymentMethod === 'stripe') && (
+                <div className="mt-6 grid grid-cols-1 gap-y-6">
+                  {formData.paymentMethod === 'stripe' && (
+                    <div className="rounded-md bg-blue-50 p-4">
+                      <div className="flex">
+                        <div className="ml-3">
+                          <h3 className="text-sm font-medium text-blue-800">
+                            Secure Payment with Stripe
+                          </h3>
+                          <div className="mt-2 text-sm text-blue-700">
+                            <p>
+                              Your payment will be processed securely through
+                              Stripe.
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                  <div>
+                    <label
+                      htmlFor="cardNumber"
                       className="block text-sm font-medium text-gray-700"
                     >
-                      Expiry date
+                      Card number
                     </label>
                     <div className="mt-1">
                       <input
                         type="text"
-                        id="expiryDate"
-                        name="expiryDate"
-                        required
-                        value={formData.expiryDate}
+                        id="cardNumber"
+                        name="cardNumber"
+                        required={
+                          formData.paymentMethod === 'card' ||
+                          formData.paymentMethod === 'stripe'
+                        }
+                        value={formData.cardNumber}
                         onChange={handleChange}
                         className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm px-3 py-2 border"
-                        placeholder="MM/YY"
+                        placeholder="1234 5678 9012 3456"
                       />
                     </div>
                   </div>
 
                   <div>
                     <label
-                      htmlFor="cvv"
+                      htmlFor="cardName"
                       className="block text-sm font-medium text-gray-700"
                     >
-                      CVV
+                      Name on card
                     </label>
                     <div className="mt-1">
                       <input
                         type="text"
-                        id="cvv"
-                        name="cvv"
-                        required
-                        value={formData.cvv}
+                        id="cardName"
+                        name="cardName"
+                        required={
+                          formData.paymentMethod === 'card' ||
+                          formData.paymentMethod === 'stripe'
+                        }
+                        value={formData.cardName}
                         onChange={handleChange}
                         className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm px-3 py-2 border"
-                        placeholder="123"
                       />
                     </div>
                   </div>
+
+                  <div className="grid grid-cols-3 gap-x-4">
+                    <div className="col-span-2">
+                      <label
+                        htmlFor="expiryDate"
+                        className="block text-sm font-medium text-gray-700"
+                      >
+                        Expiry date
+                      </label>
+                      <div className="mt-1">
+                        <input
+                          type="text"
+                          id="expiryDate"
+                          name="expiryDate"
+                          required={
+                            formData.paymentMethod === 'card' ||
+                            formData.paymentMethod === 'stripe'
+                          }
+                          value={formData.expiryDate}
+                          onChange={handleChange}
+                          className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm px-3 py-2 border"
+                          placeholder="MM/YY"
+                        />
+                      </div>
+                    </div>
+
+                    <div>
+                      <label
+                        htmlFor="cvv"
+                        className="block text-sm font-medium text-gray-700"
+                      >
+                        CVV
+                      </label>
+                      <div className="mt-1">
+                        <input
+                          type="text"
+                          id="cvv"
+                          name="cvv"
+                          required={
+                            formData.paymentMethod === 'card' ||
+                            formData.paymentMethod === 'stripe'
+                          }
+                          value={formData.cvv}
+                          onChange={handleChange}
+                          className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm px-3 py-2 border"
+                          placeholder="123"
+                        />
+                      </div>
+                    </div>
+                  </div>
                 </div>
-              </div>
+              )}
+
+              {/* Cash On Delivery Message */}
+              {formData.paymentMethod === 'cod' && (
+                <div className="mt-6 rounded-md bg-green-50 p-4">
+                  <div className="flex">
+                    <div className="ml-3">
+                      <h3 className="text-sm font-medium text-green-800">
+                        Cash On Delivery
+                      </h3>
+                      <div className="mt-2 text-sm text-green-700">
+                        <p>
+                          You will pay in cash when your order is delivered.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
 
