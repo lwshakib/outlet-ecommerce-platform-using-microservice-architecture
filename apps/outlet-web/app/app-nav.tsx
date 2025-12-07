@@ -9,6 +9,12 @@ export function AppNav() {
       <NavLink to="/about" end>
         About
       </NavLink>
+      <NavLink to="/sign-in" end>
+        Sign In
+      </NavLink>
+      <NavLink to="/sign-up" end>
+        Sign Up
+      </NavLink>
     </nav>
   );
 }

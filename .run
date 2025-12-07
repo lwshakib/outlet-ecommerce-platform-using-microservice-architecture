@@ -1,0 +1,1 @@
+npx nx run @outlet-ecommerce-platform-using-microservice-architecture/outlet-web:dev 
