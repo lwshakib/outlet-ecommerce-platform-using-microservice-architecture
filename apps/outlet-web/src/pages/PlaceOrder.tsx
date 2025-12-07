@@ -37,8 +37,9 @@ export default function PlaceOrder() {
     // For Cash On Delivery, you would just create the order
     const paymentMethodName =
       formData.paymentMethod === 'cod' ? 'Cash On Delivery' : 'Stripe';
-    alert(`Order placed successfully! Payment method: ${paymentMethodName}`);
-    navigate('/');
+    // In a real app, you would submit to an API here
+    // For now, we'll just navigate to orders page
+    navigate('/orders');
   };
 
   return (
