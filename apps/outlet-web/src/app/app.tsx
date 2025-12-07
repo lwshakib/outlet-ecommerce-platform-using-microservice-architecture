@@ -1,5 +1,6 @@
 import { Routes, Route } from 'react-router-dom';
 import OutletHeader from '../components/OutletHeader';
+import Footer from '../components/Footer';
 import Home from '../pages/Home';
 import SignIn from '../pages/SignIn';
 import CreateAccount from '../pages/CreateAccount';
@@ -10,17 +11,20 @@ import Orders from '../pages/Orders';
 
 export function App() {
   return (
-    <div className="">
+    <div className="flex flex-col min-h-screen">
       <OutletHeader />
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/sign-in" element={<SignIn />} />
-        <Route path="/create-account" element={<CreateAccount />} />
-        <Route path="/cart" element={<Cart />} />
-        <Route path="/place-order" element={<PlaceOrder />} />
-        <Route path="/order-success" element={<OrderSuccess />} />
-        <Route path="/orders" element={<Orders />} />
-      </Routes>
+      <main className="flex-1">
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/sign-in" element={<SignIn />} />
+          <Route path="/create-account" element={<CreateAccount />} />
+          <Route path="/cart" element={<Cart />} />
+          <Route path="/place-order" element={<PlaceOrder />} />
+          <Route path="/order-success" element={<OrderSuccess />} />
+          <Route path="/orders" element={<Orders />} />
+        </Routes>
+      </main>
+      <Footer />
     </div>
   );
 }
