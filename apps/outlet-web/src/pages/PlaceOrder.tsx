@@ -12,7 +12,7 @@ export default function PlaceOrder() {
     state: '',
     zipCode: '',
     country: 'United States',
-    paymentMethod: 'card',
+    paymentMethod: 'stripe',
     cardNumber: '',
     cardName: '',
     expiryDate: '',
@@ -36,11 +36,7 @@ export default function PlaceOrder() {
     // For Stripe, you would integrate with Stripe API
     // For Cash On Delivery, you would just create the order
     const paymentMethodName =
-      formData.paymentMethod === 'cod'
-        ? 'Cash On Delivery'
-        : formData.paymentMethod === 'stripe'
-        ? 'Stripe'
-        : 'Card';
+      formData.paymentMethod === 'cod' ? 'Cash On Delivery' : 'Stripe';
     alert(`Order placed successfully! Payment method: ${paymentMethodName}`);
     navigate('/');
   };
@@ -250,23 +246,6 @@ export default function PlaceOrder() {
                 <div className="space-y-3">
                   <div className="flex items-center">
                     <input
-                      id="payment-card"
-                      name="paymentMethod"
-                      type="radio"
-                      value="card"
-                      checked={formData.paymentMethod === 'card'}
-                      onChange={handleChange}
-                      className="h-4 w-4 border-gray-300 text-indigo-600 focus:ring-indigo-500"
-                    />
-                    <label
-                      htmlFor="payment-card"
-                      className="ml-3 block text-sm font-medium text-gray-700"
-                    >
-                      Card
-                    </label>
-                  </div>
-                  <div className="flex items-center">
-                    <input
                       id="payment-stripe"
                       name="paymentMethod"
                       type="radio"
@@ -302,9 +281,8 @@ export default function PlaceOrder() {
                 </div>
               </div>
 
-              {/* Card Details - Only show for Card or Stripe */}
-              {(formData.paymentMethod === 'card' ||
-                formData.paymentMethod === 'stripe') && (
+              {/* Card Details - Only show for Stripe */}
+              {formData.paymentMethod === 'stripe' && (
                 <div className="mt-6 grid grid-cols-1 gap-y-6">
                   {formData.paymentMethod === 'stripe' && (
                     <div className="rounded-md bg-blue-50 p-4">
@@ -335,10 +313,7 @@ export default function PlaceOrder() {
                         type="text"
                         id="cardNumber"
                         name="cardNumber"
-                        required={
-                          formData.paymentMethod === 'card' ||
-                          formData.paymentMethod === 'stripe'
-                        }
+                        required={formData.paymentMethod === 'stripe'}
                         value={formData.cardNumber}
                         onChange={handleChange}
                         className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm px-3 py-2 border"
@@ -359,10 +334,7 @@ export default function PlaceOrder() {
                         type="text"
                         id="cardName"
                         name="cardName"
-                        required={
-                          formData.paymentMethod === 'card' ||
-                          formData.paymentMethod === 'stripe'
-                        }
+                        required={formData.paymentMethod === 'stripe'}
                         value={formData.cardName}
                         onChange={handleChange}
                         className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm px-3 py-2 border"
