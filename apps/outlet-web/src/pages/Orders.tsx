@@ -1,8 +1,55 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 
-// Mock orders data - in a real app, this would come from state/context/API
+// Mock orders data with detailed tracking - in a real app, this would come from state/context/API
 const mockOrders = [
+  {
+    id: '54879',
+    date: '2024-03-22',
+    status: 'processing',
+    total: 83.16,
+    items: [
+      {
+        id: 1,
+        name: 'Nomad Tumbler',
+        quantity: 1,
+        price: 35.0,
+        imageSrc:
+          'https://tailwindcss.com/plus-assets/img/ecommerce-images/category-page-04-image-card-02.jpg',
+        description:
+          'This durable and portable insulated tumbler will keep your beverage at the perfect temperature during your next adventure.',
+        trackingStatus: 'processing',
+        trackingDate: '2024-03-24',
+        trackingMessage: 'Preparing to ship on March 24, 2024',
+      },
+      {
+        id: 2,
+        name: 'Minimalist Wristwatch',
+        quantity: 1,
+        price: 149.0,
+        imageSrc:
+          'https://tailwindcss.com/plus-assets/img/ecommerce-images/category-page-04-image-card-06.jpg',
+        description:
+          'This contemporary wristwatch has a clean, minimalist look and high quality components.',
+        trackingStatus: 'shipped',
+        trackingDate: '2024-03-23',
+        trackingMessage: 'Shipped on March 23, 2024',
+      },
+    ],
+    paymentMethod: 'stripe',
+    shippingAddress: {
+      name: 'Floyd Miles',
+      address: '7363 Cynthia Pass',
+      city: 'Toronto, ON N3Y 4HB',
+    },
+    billingAddress: {
+      name: 'Floyd Miles',
+      address: '7363 Cynthia Pass',
+      city: 'Toronto, ON N3Y 4H8',
+    },
+    contactEmail: 'f***@example.com',
+    contactPhone: '1*********40',
+  },
   {
     id: 'ORD-001',
     date: '2024-01-15',
@@ -10,102 +57,95 @@ const mockOrders = [
     total: 140.8,
     items: [
       {
-        id: 1,
+        id: 3,
         name: 'Earthen Bottle',
         quantity: 1,
         price: 48,
         imageSrc:
           'https://tailwindcss.com/plus-assets/img/ecommerce-images/category-page-04-image-card-01.jpg',
+        description:
+          'Tall slender porcelain bottle with natural clay textured body.',
+        trackingStatus: 'delivered',
+        trackingDate: '2024-01-18',
+        trackingMessage: 'Delivered on January 18, 2024',
       },
       {
-        id: 2,
-        name: 'Nomad Tumbler',
+        id: 4,
+        name: 'Focus Paper Refill',
         quantity: 2,
         price: 35,
         imageSrc:
-          'https://tailwindcss.com/plus-assets/img/ecommerce-images/category-page-04-image-card-02.jpg',
-      },
-    ],
-    paymentMethod: 'stripe',
-  },
-  {
-    id: 'ORD-002',
-    date: '2024-01-20',
-    status: 'processing',
-    total: 89.0,
-    items: [
-      {
-        id: 3,
-        name: 'Focus Paper Refill',
-        quantity: 1,
-        price: 89,
-        imageSrc:
           'https://tailwindcss.com/plus-assets/img/ecommerce-images/category-page-04-image-card-03.jpg',
-      },
-    ],
-    paymentMethod: 'cod',
-  },
-  {
-    id: 'ORD-003',
-    date: '2024-01-22',
-    status: 'shipped',
-    total: 118.0,
-    items: [
-      {
-        id: 4,
-        name: 'Machined Mechanical Pencil',
-        quantity: 1,
-        price: 35,
-        imageSrc:
-          'https://tailwindcss.com/plus-assets/img/ecommerce-images/category-page-04-image-card-04.jpg',
-      },
-      {
-        id: 5,
-        name: 'Focus Card Tray',
-        quantity: 1,
-        price: 64,
-        imageSrc:
-          'https://tailwindcss.com/plus-assets/img/ecommerce-images/category-page-04-image-card-05.jpg',
+        description:
+          'Person using a pen to cross a task off a productivity paper card.',
+        trackingStatus: 'delivered',
+        trackingDate: '2024-01-18',
+        trackingMessage: 'Delivered on January 18, 2024',
       },
     ],
     paymentMethod: 'stripe',
-  },
-  {
-    id: 'ORD-004',
-    date: '2024-01-25',
-    status: 'pending',
-    total: 50.0,
-    items: [
-      {
-        id: 7,
-        name: 'Brass Scissors',
-        quantity: 1,
-        price: 50,
-        imageSrc:
-          'https://tailwindcss.com/plus-assets/img/ecommerce-images/category-page-04-image-card-07.jpg',
-      },
-    ],
-    paymentMethod: 'cod',
   },
 ];
 
-const statusConfig = {
-  pending: {
-    label: 'Pending',
-    color: 'bg-yellow-100 text-yellow-800',
-  },
-  processing: {
-    label: 'Processing',
-    color: 'bg-blue-100 text-blue-800',
-  },
-  shipped: {
-    label: 'Shipped',
-    color: 'bg-purple-100 text-purple-800',
-  },
-  delivered: {
-    label: 'Delivered',
-    color: 'bg-green-100 text-green-800',
-  },
+const trackingStages = [
+  { id: 'placed', label: 'Order placed' },
+  { id: 'processing', label: 'Processing' },
+  { id: 'shipped', label: 'Shipped' },
+  { id: 'delivered', label: 'Delivered' },
+];
+
+const getStageIndex = (status: string) => {
+  switch (status) {
+    case 'pending':
+    case 'placed':
+      return 0;
+    case 'processing':
+      return 1;
+    case 'shipped':
+      return 2;
+    case 'delivered':
+      return 3;
+    default:
+      return 0;
+  }
+};
+
+const TrackingProgress = ({ currentStatus }: { currentStatus: string }) => {
+  const currentIndex = getStageIndex(currentStatus);
+
+  return (
+    <div className="mt-4">
+      {/* Progress Bar */}
+      <div className="relative">
+        <div className="absolute top-0 left-0 right-0 h-1 bg-gray-200 rounded-full" />
+        <div
+          className="absolute top-0 left-0 h-1 bg-indigo-600 rounded-full transition-all duration-300"
+          style={{
+            width: `${(currentIndex / (trackingStages.length - 1)) * 100}%`,
+          }}
+        />
+      </div>
+
+      {/* Stage Labels */}
+      <div className="flex justify-between mt-3">
+        {trackingStages.map((stage, index) => {
+          const isCompleted = index <= currentIndex;
+
+          return (
+            <div key={stage.id} className="flex-1 text-center">
+              <span
+                className={`text-xs ${
+                  isCompleted ? 'text-indigo-600 font-medium' : 'text-gray-500'
+                }`}
+              >
+                {stage.label}
+              </span>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
 };
 
 export default function Orders() {
@@ -120,17 +160,6 @@ export default function Orders() {
 
   const previousOrders = orders.filter((order) => order.status === 'delivered');
 
-  const getStatusBadge = (status: keyof typeof statusConfig) => {
-    const config = statusConfig[status];
-    return (
-      <span
-        className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${config.color}`}
-      >
-        {config.label}
-      </span>
-    );
-  };
-
   const getPaymentMethodLabel = (method: string) => {
     return method === 'cod' ? 'Cash On Delivery' : 'Stripe';
   };
@@ -142,62 +171,167 @@ export default function Orders() {
           My Orders
         </h1>
 
-        {/* Ongoing Orders */}
+        {/* Ongoing Orders with Detailed Tracking */}
         {ongoingOrders.length > 0 && (
           <div className="mt-12">
             <h2 className="text-xl font-semibold text-gray-900 mb-6">
               Ongoing Orders
             </h2>
-            <div className="space-y-6">
+            <div className="space-y-8">
               {ongoingOrders.map((order) => (
                 <div
                   key={order.id}
                   className="border border-gray-200 rounded-lg p-6 hover:shadow-md transition-shadow"
                 >
-                  <div className="flex items-center justify-between mb-4">
-                    <div>
-                      <h3 className="text-lg font-medium text-gray-900">
+                  {/* Order Header */}
+                  <div className="flex items-center justify-between mb-6 pb-4 border-b border-gray-200">
+                    <div className="flex items-center gap-4">
+                      <h3 className="text-lg font-semibold text-gray-900">
                         Order #{order.id}
                       </h3>
-                      <p className="text-sm text-gray-500 mt-1">
-                        Placed on {new Date(order.date).toLocaleDateString()}
-                      </p>
+                      <Link
+                        to="#"
+                        className="text-sm text-indigo-600 hover:text-indigo-500"
+                      >
+                        View invoice →
+                      </Link>
                     </div>
-                    <div className="text-right">
-                      {getStatusBadge(
-                        order.status as keyof typeof statusConfig
-                      )}
-                      <p className="text-lg font-semibold text-gray-900 mt-2">
-                        ${order.total.toFixed(2)}
-                      </p>
-                    </div>
+                    <p className="text-sm text-gray-500">
+                      Order placed{' '}
+                      {new Date(order.date).toLocaleDateString('en-US', {
+                        month: 'long',
+                        day: 'numeric',
+                        year: 'numeric',
+                      })}
+                    </p>
                   </div>
 
-                  <div className="border-t border-gray-200 pt-4">
-                    <div className="flex items-center space-x-4 mb-4">
-                      {order.items.slice(0, 3).map((item) => (
-                        <div key={item.id} className="flex-shrink-0">
-                          <img
-                            src={item.imageSrc}
-                            alt={item.name}
-                            className="h-16 w-16 rounded-md object-cover"
+                  {/* Order Items with Individual Tracking */}
+                  <div className="space-y-8">
+                    {order.items.map((item) => (
+                      <div
+                        key={item.id}
+                        className="border-b border-gray-200 pb-8 last:border-b-0 last:pb-0"
+                      >
+                        <div className="flex gap-6 mb-6">
+                          <div className="flex-shrink-0">
+                            <img
+                              src={item.imageSrc}
+                              alt={item.name}
+                              className="h-24 w-24 rounded-lg object-cover sm:h-32 sm:w-32"
+                            />
+                          </div>
+                          <div className="flex-1">
+                            <h4 className="text-base font-semibold text-gray-900">
+                              {item.name}
+                            </h4>
+                            <p className="mt-1 text-sm text-gray-600">
+                              ${item.price.toFixed(2)}
+                            </p>
+                            <p className="mt-2 text-sm text-gray-600">
+                              {item.description}
+                            </p>
+                          </div>
+                        </div>
+
+                        {/* Delivery Address */}
+                        {order.shippingAddress && (
+                          <div className="mb-4">
+                            <h5 className="text-sm font-medium text-gray-900 mb-2">
+                              Delivery Address
+                            </h5>
+                            <div className="text-sm text-gray-600">
+                              <p>{order.shippingAddress.name}</p>
+                              <p>{order.shippingAddress.address}</p>
+                              <p>{order.shippingAddress.city}</p>
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Shipping Updates */}
+                        {order.contactEmail && (
+                          <div className="mb-4">
+                            <h5 className="text-sm font-medium text-gray-900 mb-2">
+                              Shipping Updates
+                            </h5>
+                            <div className="text-sm text-gray-600 space-y-1">
+                              <p>{order.contactEmail}</p>
+                              <p>{order.contactPhone}</p>
+                              <Link
+                                to="#"
+                                className="text-indigo-600 hover:text-indigo-500"
+                              >
+                                Edit
+                              </Link>
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Order Tracking */}
+                        <div>
+                          <h5 className="text-sm font-medium text-gray-900 mb-2">
+                            {item.trackingMessage}
+                          </h5>
+                          <TrackingProgress
+                            currentStatus={item.trackingStatus}
                           />
                         </div>
-                      ))}
-                      {order.items.length > 3 && (
-                        <div className="flex-shrink-0 flex items-center justify-center h-16 w-16 rounded-md bg-gray-100 text-sm font-medium text-gray-600">
-                          +{order.items.length - 3}
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Billing & Payment Information */}
+                  <div className="mt-8 pt-6 border-t border-gray-200">
+                    <div className="grid grid-cols-1 gap-8 sm:grid-cols-3">
+                      {order.billingAddress && (
+                        <div>
+                          <h5 className="text-sm font-semibold text-gray-900 mb-2">
+                            Billing address
+                          </h5>
+                          <div className="text-sm text-gray-600">
+                            <p>{order.billingAddress.name}</p>
+                            <p>{order.billingAddress.address}</p>
+                            <p>{order.billingAddress.city}</p>
+                          </div>
                         </div>
                       )}
-                    </div>
-                    <div className="flex items-center justify-between text-sm">
-                      <span className="text-gray-600">
-                        {order.items.length} item
-                        {order.items.length > 1 ? 's' : ''}
-                      </span>
-                      <span className="text-gray-600">
-                        Payment: {getPaymentMethodLabel(order.paymentMethod)}
-                      </span>
+                      <div>
+                        <h5 className="text-sm font-semibold text-gray-900 mb-2">
+                          Payment Information
+                        </h5>
+                        <div className="text-sm text-gray-600">
+                          <p>VISA</p>
+                          <p>Ending with 4242</p>
+                          <p>Expires 02 / 24</p>
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <h5 className="text-sm font-semibold text-gray-900 mb-2">
+                          Order Summary
+                        </h5>
+                        <div className="text-sm text-gray-600 space-y-1">
+                          <div className="flex justify-between">
+                            <span>Subtotal</span>
+                            <span>${order.total.toFixed(2)}</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span>Shipping</span>
+                            <span>$5.00</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span>Tax</span>
+                            <span>$6.16</span>
+                          </div>
+                          <div className="flex justify-between mt-2 pt-2 border-t border-gray-200">
+                            <span className="font-semibold text-gray-900">
+                              Order total
+                            </span>
+                            <span className="font-semibold text-indigo-600">
+                              ${order.total.toFixed(2)}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -228,9 +362,9 @@ export default function Orders() {
                       </p>
                     </div>
                     <div className="text-right">
-                      {getStatusBadge(
-                        order.status as keyof typeof statusConfig
-                      )}
+                      <span className="inline-flex items-center rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-medium text-green-800">
+                        Delivered
+                      </span>
                       <p className="text-lg font-semibold text-gray-900 mt-2">
                         ${order.total.toFixed(2)}
                       </p>

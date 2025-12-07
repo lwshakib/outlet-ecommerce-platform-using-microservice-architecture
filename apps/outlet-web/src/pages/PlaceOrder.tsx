@@ -38,8 +38,8 @@ export default function PlaceOrder() {
     const paymentMethodName =
       formData.paymentMethod === 'cod' ? 'Cash On Delivery' : 'Stripe';
     // In a real app, you would submit to an API here
-    // For now, we'll just navigate to orders page
-    navigate('/orders');
+    // For now, we'll just navigate to order success page
+    navigate('/order-success');
   };
 
   return (

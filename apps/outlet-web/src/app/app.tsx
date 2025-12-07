@@ -5,6 +5,7 @@ import SignIn from '../pages/SignIn';
 import CreateAccount from '../pages/CreateAccount';
 import Cart from '../pages/Cart';
 import PlaceOrder from '../pages/PlaceOrder';
+import OrderSuccess from '../pages/OrderSuccess';
 import Orders from '../pages/Orders';
 
 export function App() {
@@ -17,6 +18,7 @@ export function App() {
         <Route path="/create-account" element={<CreateAccount />} />
         <Route path="/cart" element={<Cart />} />
         <Route path="/place-order" element={<PlaceOrder />} />
+        <Route path="/order-success" element={<OrderSuccess />} />
         <Route path="/orders" element={<Orders />} />
       </Routes>
     </div>
