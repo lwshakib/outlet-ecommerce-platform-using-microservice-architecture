@@ -1,0 +1,6 @@
+{
+  "installCommand": "npm install",
+  "buildCommand": "npx nx build outlet-web --prod",
+  "outputDirectory": "dist/apps/outlet-web",
+  "framework": null
+}
