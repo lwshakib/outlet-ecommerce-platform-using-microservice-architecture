@@ -8,6 +8,12 @@
     },
     {
       "path": "./apps/outlet-web"
+    },
+    {
+      "path": "./apps/company-portal-e2e"
+    },
+    {
+      "path": "./apps/company-portal"
     }
   ]
 }

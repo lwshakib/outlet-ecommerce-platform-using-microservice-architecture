@@ -3,6 +3,7 @@ import OutletHeader from '../components/OutletHeader';
 import Home from '../pages/Home';
 import SignIn from '../pages/SignIn';
 import CreateAccount from '../pages/CreateAccount';
+import Cart from '../pages/Cart';
 
 export function App() {
   return (
@@ -12,6 +13,7 @@ export function App() {
         <Route path="/" element={<Home />} />
         <Route path="/sign-in" element={<SignIn />} />
         <Route path="/create-account" element={<CreateAccount />} />
+        <Route path="/cart" element={<Cart />} />
       </Routes>
     </div>
   );
