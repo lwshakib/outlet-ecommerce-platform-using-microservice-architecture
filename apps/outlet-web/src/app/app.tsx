@@ -4,6 +4,7 @@ import Home from '../pages/Home';
 import SignIn from '../pages/SignIn';
 import CreateAccount from '../pages/CreateAccount';
 import Cart from '../pages/Cart';
+import PlaceOrder from '../pages/PlaceOrder';
 
 export function App() {
   return (
@@ -14,6 +15,7 @@ export function App() {
         <Route path="/sign-in" element={<SignIn />} />
         <Route path="/create-account" element={<CreateAccount />} />
         <Route path="/cart" element={<Cart />} />
+        <Route path="/place-order" element={<PlaceOrder />} />
       </Routes>
     </div>
   );
