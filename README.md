@@ -1,82 +1,330 @@
 # Outlet Ecommerce Platform Using Microservice Architecture
 
+A modern e-commerce platform built with React, TypeScript, and Nx monorepo architecture. This project implements a microservices-based approach with separate portals for customers, admins, and companies.
+
 <a alt="Nx logo" href="https://nx.dev" target="_blank" rel="noreferrer"><img src="https://raw.githubusercontent.com/nrwl/nx/master/images/nx-logo.png" width="45"></a>
 
-✨ Your new, shiny [Nx workspace](https://nx.dev) is almost ready ✨.
+## 🚀 Project Overview
 
-[Learn more about this workspace setup and its capabilities](https://nx.dev/getting-started/tutorials/react-monorepo-tutorial?utm_source=nx_project&amp;utm_medium=readme&amp;utm_campaign=nx_projects) or run `npx nx graph` to visually explore what was created. Now, let's get you up to speed!
+This is a full-stack e-commerce platform designed with a microservice architecture, featuring multiple applications for different user roles:
 
-## Finish your CI setup
+- **Outlet Web** - Customer-facing e-commerce storefront
+- **Admin Portal** - Administrative dashboard for managing the platform
+- **Company Portal** - Portal for company/vendor management
 
-[Click here to finish setting up your workspace!](https://cloud.nx.app/connect/CSc83nlE4o)
+## 📦 Applications
 
+### Outlet Web (Customer Portal)
 
-## Run tasks
+The main customer-facing e-commerce application with the following features:
 
-To run the dev server for your app, use:
+#### Features
 
-```sh
+- **Home Page**
+
+  - Hero slider with auto-rotating banners
+  - Latest Collections section
+  - Best Sellers section
+  - Product grid with responsive design
+
+- **Product Management**
+
+  - Product detail pages with image galleries
+  - Product options (color, size, quantity)
+  - Related products section ("Customers also bought")
+  - Product search and filtering
+
+- **Shopping Cart**
+
+  - Add/remove items
+  - Quantity management
+  - Price calculations (subtotal, shipping, tax)
+  - Cart persistence
+
+- **Checkout & Orders**
+
+  - Multi-step checkout process
+  - Payment methods (Stripe, Cash on Delivery)
+  - Order placement
+  - Order tracking with visual progress indicators
+  - Order history page
+
+- **User Authentication**
+
+  - Sign in page
+  - Create account page
+  - User session management
+
+- **UI Components**
+  - Responsive header with navigation
+  - Footer with links and newsletter
+  - Modern, clean design with Tailwind CSS
+  - Luxury branding with custom typography
+
+#### Tech Stack
+
+- React 19
+- React Router 7
+- TypeScript
+- Tailwind CSS
+- Headless UI
+- Heroicons
+- Vite
+
+### Admin Portal
+
+Administrative dashboard for managing the e-commerce platform (in development).
+
+### Company Portal
+
+Portal for companies/vendors to manage their products and orders (in development).
+
+## 🛠️ Tech Stack
+
+### Frontend
+
+- **React** 19.0.0
+- **TypeScript** 5.9.2
+- **React Router** 7.2.0
+- **Tailwind CSS** 3.4.3
+- **Headless UI** 2.2.9
+- **Heroicons** 2.2.0
+- **Vite** 7.0.0
+
+### Development Tools
+
+- **Nx** 22.1.3 - Monorepo management
+- **Vitest** 4.0.0 - Testing framework
+- **Playwright** 1.36.0 - E2E testing
+- **ESLint** 9.8.0 - Code linting
+- **Prettier** 2.6.2 - Code formatting
+
+## 📁 Project Structure
+
+```
+outlet-ecommerce-platform-using-microservice-architecture/
+├── apps/
+│   ├── outlet-web/              # Customer-facing e-commerce app
+│   │   ├── src/
+│   │   │   ├── app/             # App configuration
+│   │   │   ├── components/      # Reusable components
+│   │   │   │   ├── Footer.tsx
+│   │   │   │   ├── HeroSlider.tsx
+│   │   │   │   └── OutletHeader.tsx
+│   │   │   └── pages/           # Page components
+│   │   │       ├── Home.tsx
+│   │   │       ├── ProductDetail.tsx
+│   │   │       ├── Cart.tsx
+│   │   │       ├── SignIn.tsx
+│   │   │       ├── CreateAccount.tsx
+│   │   │       ├── PlaceOrder.tsx
+│   │   │       ├── OrderSuccess.tsx
+│   │   │       └── Orders.tsx
+│   │   ├── index.html
+│   │   └── vite.config.mts
+│   ├── admin-portal/            # Admin dashboard
+│   ├── company-portal/          # Company/vendor portal
+│   └── *-e2e/                   # E2E tests for each app
+├── package.json
+├── tsconfig.base.json
+└── README.md
+```
+
+## 🚀 Getting Started
+
+### Prerequisites
+
+- Node.js (v20 or higher)
+- npm or yarn
+
+### Installation
+
+1. Clone the repository:
+
+```bash
+git clone <repository-url>
+cd outlet-ecommerce-platform-using-microservice-architecture
+```
+
+2. Install dependencies:
+
+```bash
+npm install
+```
+
+### Development
+
+Run the development server for the outlet-web app:
+
+```bash
 npx nx serve outlet-web
 ```
 
-To create a production bundle:
+The app will be available at `http://localhost:4200`
 
-```sh
+### Build
+
+Create a production build:
+
+```bash
 npx nx build outlet-web
 ```
 
-To see all available targets to run for a project, run:
+### Testing
 
-```sh
+Run unit tests:
+
+```bash
+npx nx test outlet-web
+```
+
+Run E2E tests:
+
+```bash
+npx nx e2e outlet-web-e2e
+```
+
+## 📝 Available Commands
+
+### Run Tasks
+
+```bash
+# Serve outlet-web app
+npx nx serve outlet-web
+
+# Build outlet-web app
+npx nx build outlet-web
+
+# Test outlet-web app
+npx nx test outlet-web
+
+# Lint outlet-web app
+npx nx lint outlet-web
+```
+
+### View Project Graph
+
+```bash
+npx nx graph
+```
+
+### Show Project Details
+
+```bash
 npx nx show project outlet-web
 ```
 
-These targets are either [inferred automatically](https://nx.dev/concepts/inferred-tasks?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) or defined in the `project.json` or `package.json` files.
+## 🎨 Features in Detail
 
-[More about running tasks in the docs &raquo;](https://nx.dev/features/run-tasks?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+### Outlet Web Features
 
-## Add new projects
+#### Navigation
 
-While you could add new projects to your workspace manually, you might want to leverage [Nx plugins](https://nx.dev/concepts/nx-plugins?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) and their [code generation](https://nx.dev/features/generate-code?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) feature.
+- Responsive header with logo
+- Navigation menu (Home, Collections, About, Contact, Company, Stores)
+- Search functionality
+- Shopping cart icon with item count
+- User authentication links
 
-Use the plugin's generator to create new projects.
+#### Product Pages
 
-To generate a new application, use:
+- Product listing with grid layout
+- Product detail pages with:
+  - Image gallery with thumbnails
+  - Product information
+  - Color and size selection
+  - Quantity selector
+  - Add to cart functionality
+  - Related products section
 
-```sh
-npx nx g @nx/react:app demo
-```
+#### Shopping Experience
 
-To generate a new library, use:
+- Shopping cart with item management
+- Checkout process with:
+  - Contact information
+  - Shipping address
+  - Payment method selection (Stripe, Cash on Delivery)
+  - Order summary
+- Order confirmation page
+- Order tracking with visual progress indicators
 
-```sh
-npx nx g @nx/react:lib mylib
-```
+#### User Account
 
-You can use `npx nx list` to get a list of installed plugins. Then, run `npx nx list <plugin-name>` to learn about more specific capabilities of a particular plugin. Alternatively, [install Nx Console](https://nx.dev/getting-started/editor-setup?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) to browse plugins and generators in your IDE.
+- Sign in page
+- Create account page
+- Order history with detailed tracking
 
-[Learn more about Nx plugins &raquo;](https://nx.dev/concepts/nx-plugins?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) | [Browse the plugin registry &raquo;](https://nx.dev/plugin-registry?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+## 🎯 Routes
 
+### Outlet Web Routes
 
-[Learn more about Nx on CI](https://nx.dev/ci/intro/ci-with-nx#ready-get-started-with-your-provider?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+- `/` - Home page with hero slider and product collections
+- `/product/:productId` - Product detail page
+- `/cart` - Shopping cart
+- `/place-order` - Checkout page
+- `/order-success` - Order confirmation page
+- `/orders` - Order history and tracking
+- `/sign-in` - User sign in
+- `/create-account` - User registration
 
-## Install Nx Console
+## 🏗️ Architecture
 
-Nx Console is an editor extension that enriches your developer experience. It lets you run tasks, generate code, and improves code autocompletion in your IDE. It is available for VSCode and IntelliJ.
+This project uses:
 
-[Install Nx Console &raquo;](https://nx.dev/getting-started/editor-setup?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+- **Nx Monorepo** - For managing multiple applications in a single repository
+- **Microservices Architecture** - Separate applications for different user roles
+- **Component-Based Design** - Reusable React components
+- **TypeScript** - Type-safe development
+- **Tailwind CSS** - Utility-first CSS framework
 
-## Useful links
+## 📦 Dependencies
 
-Learn more:
+Key dependencies are managed at the root level and shared across applications:
 
-- [Learn more about this workspace setup](https://nx.dev/getting-started/tutorials/react-monorepo-tutorial?utm_source=nx_project&amp;utm_medium=readme&amp;utm_campaign=nx_projects)
-- [Learn about Nx on CI](https://nx.dev/ci/intro/ci-with-nx?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [Releasing Packages with Nx release](https://nx.dev/features/manage-releases?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [What are Nx plugins?](https://nx.dev/concepts/nx-plugins?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+- React ecosystem (React, React DOM, React Router)
+- UI libraries (Headless UI, Heroicons)
+- Styling (Tailwind CSS, PostCSS, Autoprefixer)
+- Build tools (Vite, Nx)
+- Testing (Vitest, Playwright, Testing Library)
 
-And join the Nx community:
-- [Discord](https://go.nx.dev/community)
-- [Follow us on X](https://twitter.com/nxdevtools) or [LinkedIn](https://www.linkedin.com/company/nrwl)
-- [Our Youtube channel](https://www.youtube.com/@nxdevtools)
-- [Our blog](https://nx.dev/blog?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+## 🔧 Configuration
+
+### Tailwind CSS
+
+Tailwind CSS is configured for all applications. Configuration files:
+
+- `tailwind.config.js` - Per application
+- `postcss.config.js` - PostCSS configuration
+
+### TypeScript
+
+TypeScript configuration is shared via:
+
+- `tsconfig.base.json` - Base configuration
+- `tsconfig.json` - Per application overrides
+
+## 🤝 Contributing
+
+1. Create a feature branch
+2. Make your changes
+3. Run tests and linting
+4. Submit a pull request
+
+## 📄 License
+
+MIT
+
+## 🔗 Useful Links
+
+- [Nx Documentation](https://nx.dev)
+- [React Router Documentation](https://reactrouter.com)
+- [Tailwind CSS Documentation](https://tailwindcss.com)
+- [Headless UI Documentation](https://headlessui.com)
+
+## 📞 Support
+
+For issues and questions, please open an issue in the repository.
+
+---
+
+Built with ❤️ using Nx, React, and TypeScript
