@@ -114,35 +114,76 @@ const TrackingProgress = ({ currentStatus }: { currentStatus: string }) => {
   const currentIndex = getStageIndex(currentStatus);
 
   return (
-    <div className="mt-4">
-      {/* Progress Bar */}
+    <div className="mt-6">
+      {/* Progress Bar with Stages */}
       <div className="relative">
-        <div className="absolute top-0 left-0 right-0 h-1 bg-gray-200 rounded-full" />
+        {/* Background line */}
+        <div className="absolute top-5 left-0 right-0 h-0.5 bg-gray-200" />
+
+        {/* Filled progress line */}
         <div
-          className="absolute top-0 left-0 h-1 bg-indigo-600 rounded-full transition-all duration-300"
+          className="absolute top-5 left-0 h-0.5 bg-indigo-600 transition-all duration-500"
           style={{
             width: `${(currentIndex / (trackingStages.length - 1)) * 100}%`,
           }}
         />
-      </div>
 
-      {/* Stage Labels */}
-      <div className="flex justify-between mt-3">
-        {trackingStages.map((stage, index) => {
-          const isCompleted = index <= currentIndex;
+        {/* Stage indicators */}
+        <div className="relative flex justify-between">
+          {trackingStages.map((stage, index) => {
+            const isCompleted = index < currentIndex;
+            const isCurrent = index === currentIndex;
+            const isPending = index > currentIndex;
 
-          return (
-            <div key={stage.id} className="flex-1 text-center">
-              <span
-                className={`text-xs ${
-                  isCompleted ? 'text-indigo-600 font-medium' : 'text-gray-500'
-                }`}
-              >
-                {stage.label}
-              </span>
-            </div>
-          );
-        })}
+            return (
+              <div key={stage.id} className="flex flex-col items-center">
+                {/* Stage circle */}
+                <div
+                  className={`relative z-10 flex h-10 w-10 items-center justify-center rounded-full border-2 transition-all ${
+                    isCompleted
+                      ? 'border-indigo-600 bg-indigo-600'
+                      : isCurrent
+                      ? 'border-indigo-600 bg-white'
+                      : 'border-gray-300 bg-white'
+                  }`}
+                >
+                  {isCompleted ? (
+                    <svg
+                      className="h-6 w-6 text-white"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M5 13l4 4L19 7"
+                      />
+                    </svg>
+                  ) : isCurrent ? (
+                    <div className="h-3 w-3 rounded-full bg-indigo-600" />
+                  ) : (
+                    <div className="h-3 w-3 rounded-full bg-gray-300" />
+                  )}
+                </div>
+
+                {/* Stage label */}
+                <div className="mt-3 text-center">
+                  <p
+                    className={`text-xs font-medium ${
+                      isCompleted || isCurrent
+                        ? 'text-indigo-600'
+                        : 'text-gray-500'
+                    }`}
+                  >
+                    {stage.label}
+                  </p>
+                </div>
+              </div>
+            );
+          })}
+        </div>
       </div>
     </div>
   );
@@ -207,11 +248,11 @@ export default function Orders() {
                   </div>
 
                   {/* Order Items with Individual Tracking */}
-                  <div className="space-y-8">
+                  <div className="space-y-10">
                     {order.items.map((item) => (
                       <div
                         key={item.id}
-                        className="border-b border-gray-200 pb-8 last:border-b-0 last:pb-0"
+                        className="border-b border-gray-200 pb-10 last:border-b-0 last:pb-0"
                       >
                         <div className="flex gap-6 mb-6">
                           <div className="flex-shrink-0">
@@ -234,6 +275,30 @@ export default function Orders() {
                           </div>
                         </div>
 
+                        {/* Order Tracking - Prominent */}
+                        <div className="bg-gray-50 rounded-lg p-6 mb-6">
+                          <div className="flex items-center justify-between mb-6">
+                            <div>
+                              <h5 className="text-base font-semibold text-gray-900">
+                                {item.trackingMessage}
+                              </h5>
+                              <p className="mt-1 text-xs text-gray-500">
+                                {new Date(item.trackingDate).toLocaleDateString(
+                                  'en-US',
+                                  {
+                                    month: 'long',
+                                    day: 'numeric',
+                                    year: 'numeric',
+                                  }
+                                )}
+                              </p>
+                            </div>
+                          </div>
+                          <TrackingProgress
+                            currentStatus={item.trackingStatus}
+                          />
+                        </div>
+
                         {/* Delivery Address */}
                         {order.shippingAddress && (
                           <div className="mb-4">
@@ -250,7 +315,7 @@ export default function Orders() {
 
                         {/* Shipping Updates */}
                         {order.contactEmail && (
-                          <div className="mb-4">
+                          <div>
                             <h5 className="text-sm font-medium text-gray-900 mb-2">
                               Shipping Updates
                             </h5>
@@ -266,16 +331,6 @@ export default function Orders() {
                             </div>
                           </div>
                         )}
-
-                        {/* Order Tracking */}
-                        <div>
-                          <h5 className="text-sm font-medium text-gray-900 mb-2">
-                            {item.trackingMessage}
-                          </h5>
-                          <TrackingProgress
-                            currentStatus={item.trackingStatus}
-                          />
-                        </div>
                       </div>
                     ))}
                   </div>
