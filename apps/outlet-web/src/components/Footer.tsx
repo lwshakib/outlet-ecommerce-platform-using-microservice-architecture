@@ -9,13 +9,16 @@ export default function Footer() {
           {/* Company Info */}
           <div className="space-y-4">
             <div className="flex items-center">
-              <img
-                alt=""
-                src="https://tailwindcss.com/plus-assets/img/logos/mark.svg?color=indigo&shade=600"
-                className="h-8 w-auto"
-              />
-              <span className="ml-2 text-xl font-bold text-gray-900">
-                Outlet
+              <span
+                className="text-3xl uppercase tracking-wide"
+                style={{
+                  fontFamily: "'Montserrat', sans-serif",
+                  fontWeight: 500,
+                  color: '#374151',
+                  letterSpacing: '0.05em',
+                }}
+              >
+                OUTLET
               </span>
             </div>
             <p className="text-sm text-gray-600">

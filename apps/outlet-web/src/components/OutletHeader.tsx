@@ -328,14 +328,20 @@ export default function OutletHeader() {
 
               {/* Logo */}
               <div className="ml-4 flex lg:ml-0">
-                <a href="#">
-                  <span className="sr-only">Your Company</span>
-                  <img
-                    alt=""
-                    src="https://tailwindcss.com/plus-assets/img/logos/mark.svg?color=indigo&shade=600"
-                    className="h-8 w-auto"
-                  />
-                </a>
+                <Link to="/">
+                  <span className="sr-only">Outlet</span>
+                  <span
+                    className="text-2xl uppercase tracking-wide"
+                    style={{
+                      fontFamily: "'Montserrat', sans-serif",
+                      fontWeight: 500,
+                      color: '#374151',
+                      letterSpacing: '0.05em',
+                    }}
+                  >
+                    OUTLET
+                  </span>
+                </Link>
               </div>
 
               {/* Flyout menus */}
