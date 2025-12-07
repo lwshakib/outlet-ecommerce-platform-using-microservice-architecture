@@ -25,7 +25,7 @@ export default defineConfig({
   /* Run your local dev server before starting the tests */
   webServer: {
     command:
-      'npx nx run @outlet-ecommerce-platform-using-microservice-architecture/outlet-web:dev',
+      'npx nx run @outlet-ecommerce-platform-using-microservice-architecture/outlet-web:preview',
     url: 'http://localhost:4200',
     reuseExistingServer: true,
     cwd: workspaceRoot,
