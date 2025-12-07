@@ -160,7 +160,34 @@ Run the development server for the outlet-web app:
 npx nx serve outlet-web
 ```
 
+Or use the Nx run command:
+
+```bash
+npx nx run @outlet-ecommerce-platform-using-microservice-architecture/outlet-web:dev
+```
+
 The app will be available at `http://localhost:4200`
+
+#### Run All Applications
+
+To run all applications simultaneously:
+
+```bash
+npx nx run-many --target=dev --all
+```
+
+#### Run Individual Applications
+
+```bash
+# Run outlet-web
+npx nx run @outlet-ecommerce-platform-using-microservice-architecture/outlet-web:dev
+
+# Run admin-portal
+npx nx run @outlet-ecommerce-platform-using-microservice-architecture/admin-portal:dev
+
+# Run company-portal
+npx nx run @outlet-ecommerce-platform-using-microservice-architecture/company-portal:dev
+```
 
 ### Build
 
