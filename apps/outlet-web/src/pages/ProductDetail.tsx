@@ -421,6 +421,59 @@ export default function ProductDetail() {
             </section>
           </div>
         </div>
+
+        {/* Customers also bought */}
+        <section className="mt-24 border-t border-gray-200 pt-16">
+          <h2 className="text-2xl font-semibold text-gray-900 mb-8">
+            Customers also bought
+          </h2>
+          <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-4">
+            {Object.values(mockProducts)
+              .filter((p: any) => p.id !== product.id)
+              .slice(0, 4)
+              .map((relatedProduct: any) => (
+                <div key={relatedProduct.id} className="group relative">
+                  <Link to={`/product/${relatedProduct.id}`}>
+                    <div className="relative aspect-square w-full overflow-hidden rounded-lg bg-gray-100">
+                      <img
+                        src={relatedProduct.imageSrc}
+                        alt={relatedProduct.imageAlt || relatedProduct.name}
+                        className="h-full w-full object-cover object-center group-hover:opacity-75"
+                      />
+                      {/* Price tag overlay */}
+                      <div className="absolute bottom-2 right-2 rounded-md bg-gray-900 px-2.5 py-1">
+                        <span className="text-sm font-medium text-white">
+                          ${relatedProduct.price}
+                        </span>
+                      </div>
+                    </div>
+                    <div className="mt-4">
+                      <h3 className="text-base font-semibold text-gray-900">
+                        {relatedProduct.name}
+                      </h3>
+                      {relatedProduct.colors && (
+                        <p className="mt-1 text-sm text-gray-500">
+                          {relatedProduct.colors
+                            .map((c: any) => c.name)
+                            .join(' and ')}
+                        </p>
+                      )}
+                    </div>
+                  </Link>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      console.log('Add to cart:', relatedProduct.id);
+                      alert('Product added to cart!');
+                    }}
+                    className="mt-4 w-full rounded-md bg-gray-100 px-4 py-2 text-sm font-medium text-gray-900 hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+                  >
+                    Add to cart
+                  </button>
+                </div>
+              ))}
+          </div>
+        </section>
       </div>
     </div>
   );
