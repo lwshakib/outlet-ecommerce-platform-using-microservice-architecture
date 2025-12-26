@@ -13,7 +13,7 @@ app.get("/", (req, res) => {
 });
 
 // Auth routes would go here
-app.get("/api/auth/health", (req, res) => {
+app.get("/health", (req, res) => {
   res.json({ status: "Auth Service is healthy" });
 });
 

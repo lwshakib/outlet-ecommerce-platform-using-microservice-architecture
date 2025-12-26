@@ -13,16 +13,10 @@ app.get("/", (req, res) => {
 });
 
 // Email service routes would go here
-app.get("/api/email/health", (req, res) => {
+app.get("/health", (req, res) => {
   res.json({ status: "Email Service is healthy" });
 });
 
-// Placeholder for email sending functionality
-app.post("/api/email/send", (req, res) => {
-  const { to, subject, body } = req.body;
-  console.log(`Email sent to: ${to}, Subject: ${subject}`);
-  res.json({ message: "Email sent successfully", success: true });
-});
 
 app.listen(PORT, () => {
   console.log(`Email service listening on port ${PORT}`);

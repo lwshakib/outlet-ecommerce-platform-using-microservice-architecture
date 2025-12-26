@@ -1,12 +1,12 @@
 procs:
   api-gateway:
-    shell: "cd api-gateway && bun dev"
+    shell: "cd api-gateway && bun install && bun dev"
     autoRestart: true
 
   auth-service:
-    shell: "cd auth-service && bun dev"
+    shell: "cd services/auth-service && bun install && bun dev"
     autoRestart: true
     
   email-service:
-    shell: "cd email-service && bun dev"
+    shell: "cd services/email-service && bun install && bun dev"
     autoRestart: true
