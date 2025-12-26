@@ -1,0 +1,4 @@
+npx nx run @outlet-ecommerce-platform-using-microservice-architecture/outlet-web:dev
+npx nx run @outlet-ecommerce-platform-using-microservice-architecture/admin-portal:dev
+npx nx run @outlet-ecommerce-platform-using-microservice-architecture/company-portal:dev
+npx nx run-many --target=dev --all
