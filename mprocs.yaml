@@ -10,3 +10,15 @@ procs:
   email-service:
     shell: "cd services/email-service && bun install && bun dev"
     autoRestart: true
+
+  outlet-web:
+    shell: "cd outlet-web && bun install && bun dev"
+    autoRestart: true
+
+  admin-portal:
+    shell: "cd admin-portal && bun install && bun dev"
+    autoRestart: true
+
+  company-portal:
+    shell: "cd company-portal && bun install && bun dev"
+    autoRestart: true
