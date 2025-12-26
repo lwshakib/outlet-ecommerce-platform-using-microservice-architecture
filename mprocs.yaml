@@ -1,0 +1,12 @@
+procs:
+  api-gateway:
+    shell: "cd api-gateway && bun dev"
+    autoRestart: true
+
+  auth-service:
+    shell: "cd auth-service && bun dev"
+    autoRestart: true
+    
+  email-service:
+    shell: "cd email-service && bun dev"
+    autoRestart: true
