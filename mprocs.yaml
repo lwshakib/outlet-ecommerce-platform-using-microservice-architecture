@@ -12,13 +12,13 @@ procs:
     autoRestart: true
 
   outlet-web:
-    shell: "cd outlet-web && bun install && bun dev"
+    shell: "cd clients/outlet-web && bun install && bun dev"
     autoRestart: true
 
   admin-portal:
-    shell: "cd admin-portal && bun install && bun dev"
+    shell: "cd clients/admin-portal && bun install && bun dev"
     autoRestart: true
 
   company-portal:
-    shell: "cd company-portal && bun install && bun dev"
+    shell: "cd clients/company-portal && bun install && bun dev"
     autoRestart: true
