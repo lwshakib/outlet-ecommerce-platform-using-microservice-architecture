@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
+import api from '../api/apiClient';
 
 export default function CreateAccount() {
   const [formData, setFormData] = useState({
@@ -17,14 +18,32 @@ export default function CreateAccount() {
     });
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Handle create account logic here
     if (formData.password !== formData.confirmPassword) {
       alert('Passwords do not match');
       return;
     }
-    console.log('Create account:', formData);
+
+    try {
+      const response = await api.post('/auth/signup', {
+        email: formData.email,
+        password: formData.password,
+        name: `${formData.firstName} ${formData.lastName}`.trim(),
+      });
+
+      const { accessToken, refreshToken, sessionToken, user } = response.data;
+
+      localStorage.setItem('accessToken', accessToken);
+      localStorage.setItem('refreshToken', refreshToken);
+      localStorage.setItem('sessionToken', sessionToken);
+      localStorage.setItem('user', JSON.stringify(user));
+
+      console.log('Account created successfully:', user);
+      window.location.href = '/';
+    } catch (error: any) {
+      alert(error.response?.data?.error || 'Failed to create account');
+    }
   };
 
   return (

@@ -1,14 +1,27 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
+import api from '../api/apiClient';
 
 export default function SignIn() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Handle sign in logic here
-    console.log('Sign in:', { email, password });
+    try {
+      const response = await api.post('/auth/signin', { email, password });
+      const { accessToken, refreshToken, sessionToken, user } = response.data;
+
+      localStorage.setItem('accessToken', accessToken);
+      localStorage.setItem('refreshToken', refreshToken);
+      localStorage.setItem('sessionToken', sessionToken);
+      localStorage.setItem('user', JSON.stringify(user));
+
+      console.log('Signed in successfully:', user);
+      window.location.href = '/';
+    } catch (error: any) {
+      alert(error.response?.data?.error || 'Failed to sign in');
+    }
   };
 
   return (
