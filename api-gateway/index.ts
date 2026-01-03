@@ -49,6 +49,12 @@ app.get("/health", (req, res) => {
 // Proxy routes for microservices
 app.use("/auth", proxy("http://localhost:3001")); // auth-service
 app.use("/email", proxy("http://localhost:3002")); // email-service
+app.use("/users", proxy("http://localhost:3003")); // user-service
+app.use("/catalog", proxy("http://localhost:3004")); // catalog-service
+app.use("/inventory", proxy("http://localhost:3005")); // inventory-service
+app.use("/cart", proxy("http://localhost:3006")); // cart-service
+app.use("/orders", proxy("http://localhost:3007")); // order-service
+app.use("/payments", proxy("http://localhost:3008")); // payment-service
 
 app.listen(PORT, () => {
   console.log(`API Gateway listening on port ${PORT}`);

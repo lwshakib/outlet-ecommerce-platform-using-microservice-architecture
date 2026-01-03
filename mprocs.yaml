@@ -1,24 +1,70 @@
 procs:
   api-gateway:
-    shell: "cd api-gateway && bun install && bun dev"
+    cwd: api-gateway
+    shell: "bun dev"
+    autoRestart: true
+
+  custom-api-gateway:
+    cwd: custom-api-gateway
+    shell: "bun dev"
     autoRestart: true
 
   auth-service:
-    shell: "cd services/auth-service && bun install && bun dev"
+    cwd: services/auth-service
+    shell: "bun dev"
     autoRestart: true
     
   email-service:
-    shell: "cd services/email-service && bun install && bun dev"
+    cwd: services/email-service
+    shell: "bun dev"
+    autoRestart: true
+
+  user-service:
+    cwd: services/user-service
+    shell: "bun dev"
+    autoRestart: true
+
+  catalog-service:
+    cwd: services/catalog-service
+    shell: "bun dev"
+    autoRestart: true
+
+  inventory-service:
+    cwd: services/inventory-service
+    shell: "bun dev"
+    autoRestart: true
+
+  cart-service:
+    cwd: services/cart-service
+    shell: "bun dev"
+    autoRestart: true
+
+  order-service:
+    cwd: services/order-service
+    shell: "bun dev"
+    autoRestart: true
+
+  payment-service:
+    cwd: services/payment-service
+    shell: "bun dev"
     autoRestart: true
 
   outlet-web:
-    shell: "cd clients/outlet-web && bun install && bun dev"
+    cwd: clients/outlet-web
+    shell: "bun dev"
     autoRestart: true
 
   admin-portal:
-    shell: "cd clients/admin-portal && bun install && bun dev"
+    cwd: clients/admin-portal
+    shell: "bun dev"
     autoRestart: true
 
   company-portal:
-    shell: "cd clients/company-portal && bun install && bun dev"
+    cwd: clients/company-portal
+    shell: "bun dev"
+    autoRestart: true
+
+  outlet-app:
+    cwd: clients/outlet-app
+    shell: "bun dev"
     autoRestart: true

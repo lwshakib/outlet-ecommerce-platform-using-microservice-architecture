@@ -3,7 +3,7 @@
   "configVersion": 1,
   "workspaces": {
     "": {
-      "name": "custom-api-gateway",
+      "name": "inventory-service",
       "dependencies": {
         "@types/cors": "^2.8.19",
         "@types/express": "^5.0.6",

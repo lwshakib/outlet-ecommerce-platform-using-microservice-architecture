@@ -1,5 +1,5 @@
-{
-  "name": "custom-api-gateway",
+﻿{
+  "name": "catalog-service",
   "module": "index.ts",
   "type": "module",
   "private": true,

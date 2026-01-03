@@ -1,0 +1,23 @@
+{
+  "name": "outlet-ecommerce-platform",
+  "version": "1.0.0",
+  "description": "Root package for Outlet Ecommerce Platform",
+  "scripts": {
+    "install": "bun install:gateway && bun install:custom-gateway && bun install:auth && bun install:email && bun install:user && bun install:catalog && bun install:inventory && bun install:cart && bun install:order && bun install:payment && bun install:admin && bun install:company && bun install:app && bun install:web && echo \"All services installed successfully!\"",
+    "install:gateway": "echo \"Installing API Gateway...\" && cd api-gateway && bun install",
+    "install:custom-gateway": "echo \"Installing Custom API Gateway...\" && cd custom-api-gateway && bun install",
+    "install:auth": "echo \"Installing Auth Service...\" && cd services/auth-service && bun install",
+    "install:email": "echo \"Installing Email Service...\" && cd services/email-service && bun install",
+    "install:user": "echo \"Installing User Service...\" && cd services/user-service && bun install",
+    "install:catalog": "echo \"Installing Catalog Service...\" && cd services/catalog-service && bun install",
+    "install:inventory": "echo \"Installing Inventory Service...\" && cd services/inventory-service && bun install",
+    "install:cart": "echo \"Installing Cart Service...\" && cd services/cart-service && bun install",
+    "install:order": "echo \"Installing Order Service...\" && cd services/order-service && bun install",
+    "install:payment": "echo \"Installing Payment Service...\" && cd services/payment-service && bun install",
+    "install:admin": "echo \"Installing Admin Portal...\" && cd clients/admin-portal && bun install",
+    "install:company": "echo \"Installing Company Portal...\" && cd clients/company-portal && bun install",
+    "install:app": "echo \"Installing Outlet App...\" && cd clients/outlet-app && bun install",
+    "install:web": "echo \"Installing Outlet Web...\" && cd clients/outlet-web && bun install",
+    "dev:all":"mprocs"
+  }
+}
