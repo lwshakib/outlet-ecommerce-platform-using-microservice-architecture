@@ -1,4 +1,4 @@
-﻿{
+{
   "name": "order-service",
   "module": "index.ts",
   "type": "module",

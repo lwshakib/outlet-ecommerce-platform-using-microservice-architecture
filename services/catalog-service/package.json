@@ -1,4 +1,4 @@
-﻿{
+{
   "name": "catalog-service",
   "module": "index.ts",
   "type": "module",

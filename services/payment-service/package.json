@@ -1,4 +1,4 @@
-﻿{
+{
   "name": "payment-service",
   "module": "index.ts",
   "type": "module",

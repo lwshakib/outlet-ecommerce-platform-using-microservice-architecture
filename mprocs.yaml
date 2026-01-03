@@ -4,10 +4,10 @@ procs:
     shell: "bun dev"
     autoRestart: true
 
-  custom-api-gateway:
-    cwd: custom-api-gateway
-    shell: "bun dev"
-    autoRestart: true
+  # custom-api-gateway:
+  #   cwd: custom-api-gateway
+  #   shell: "bun dev"
+  #   autoRestart: true
 
   auth-service:
     cwd: services/auth-service
@@ -64,7 +64,7 @@ procs:
     shell: "bun dev"
     autoRestart: true
 
-  outlet-app:
-    cwd: clients/outlet-app
-    shell: "bun dev"
-    autoRestart: true
+  # outlet-app:
+  #   cwd: clients/outlet-app
+  #   shell: "bun dev"
+  #   autoRestart: true
