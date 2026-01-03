@@ -55,6 +55,7 @@ app.use("/inventory", proxy("http://localhost:3005")); // inventory-service
 app.use("/cart", proxy("http://localhost:3006")); // cart-service
 app.use("/orders", proxy("http://localhost:3007")); // order-service
 app.use("/payments", proxy("http://localhost:3008")); // payment-service
+app.use("/products", proxy("http://localhost:3009")); // product-service
 
 app.listen(PORT, () => {
   console.log(`API Gateway listening on port ${PORT}`);

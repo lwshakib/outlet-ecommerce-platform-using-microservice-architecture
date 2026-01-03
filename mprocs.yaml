@@ -49,6 +49,12 @@ procs:
     shell: "bun dev"
     autoRestart: true
 
+  product-service:
+    cwd: services/product-service
+    shell: "bun dev"
+    autoRestart: true
+
+
   outlet-web:
     cwd: clients/outlet-web
     shell: "bun dev"
