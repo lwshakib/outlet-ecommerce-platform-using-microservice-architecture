@@ -57,5 +57,5 @@ app.use("/products", proxy("http://localhost:3009")); // product-service
 app.use(errorHandler);
 
 app.listen(PORT, () => {
-  console.log(`API Gateway listening on port ${PORT}`);
+  logger.info(`API Gateway listening on port ${PORT}`);
 });

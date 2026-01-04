@@ -7,6 +7,7 @@ import { startGRPCServer } from "./src/grpc";
 import { prisma } from "./src/db";
 import morganMiddleware from "./src/middlewares/morgan.middleware";
 import { errorHandler } from "./src/middlewares/error.middleware";
+import logger from "./src/logger/winston.logger";
 
 const app = express();
 const PORT = process.env.PORT || 3002;
@@ -58,5 +59,5 @@ startGRPCServer();
 app.use(errorHandler);
 
 app.listen(PORT, () => {
-  console.log(`Email service API listening on port ${PORT}`);
+  logger.info(`Email service API listening on port ${PORT}`);
 });

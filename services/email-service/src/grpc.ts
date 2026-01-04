@@ -3,6 +3,7 @@ import * as protoLoader from "@grpc/proto-loader";
 import path from "path";
 import { fileURLToPath } from "url";
 import { sendEmail } from "./mailer";
+import logger from "./logger/winston.logger";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -21,7 +22,7 @@ const emailProto = (grpc.loadPackageDefinition(packageDefinition) as any).email;
 async function sendEmailGRPC(call: any, callback: any) {
   try {
     const { to, subject, body } = call.request;
-    console.log(" [x] Received from gRPC:", { to, subject });
+    logger.info(" [x] Received from gRPC:", { to, subject });
 
     await sendEmail({ to, subject, body, method: "GRPC" });
 
@@ -43,10 +44,10 @@ export function startGRPCServer() {
     grpc.ServerCredentials.createInsecure(),
     (error, port) => {
       if (error) {
-        console.error("gRPC Server failed to bind:", error);
+        logger.error("gRPC Server failed to bind:", error);
         return;
       }
-      console.log(`gRPC Server running at http://0.0.0.0:${port}`);
+      logger.info(`gRPC Server running at http://0.0.0.0:${port}`);
     }
   );
 }

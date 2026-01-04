@@ -4,6 +4,7 @@ import cors from "cors";
 import userRoutes from "./src/routes/user.routes";
 import morganMiddleware from "./src/middlewares/morgan.middleware";
 import { errorHandler } from "./src/middlewares/error.middleware";
+import logger from "./src/logger/winston.logger";
 
 const app = express();
 const PORT = process.env.PORT || 3003;
@@ -23,5 +24,5 @@ app.use("/users", userRoutes);
 app.use(errorHandler);
 
 app.listen(PORT, () => {
-  console.log(`User service listening on port ${PORT}`);
+  logger.info(`User service listening on port ${PORT}`);
 });

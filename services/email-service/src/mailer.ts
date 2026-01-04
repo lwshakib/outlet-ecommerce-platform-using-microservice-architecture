@@ -1,5 +1,6 @@
 import nodemailer from "nodemailer";
 import { prisma } from "./db";
+import logger from "./logger/winston.logger";
 
 // For development, you can use ethereal.email or a real SMTP server
 // These should ideally be in .env
@@ -33,7 +34,7 @@ export async function sendEmail({
       html: `<div>${body}</div>`,
     });
 
-    console.log("Message sent: %s", info.messageId);
+    logger.info(`Message sent: ${info.messageId}`);
 
     // Save to DB
     await prisma.email.create({
@@ -48,7 +49,7 @@ export async function sendEmail({
 
     return { success: true, messageId: info.messageId };
   } catch (error: any) {
-    console.error("Error sending email:", error);
+    logger.error("Error sending email:", error);
 
     // Save to DB as FAILED
     await prisma.email.create({
