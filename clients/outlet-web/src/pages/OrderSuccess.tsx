@@ -1,51 +1,54 @@
-import { Link, useNavigate } from 'react-router-dom';
-
-// Mock order data - in a real app, this would come from state/context/API
-const orderData = {
-  orderNumber: '14034056',
-  trackingNumber: '51547878755545848512',
-  items: [
-    {
-      id: 1,
-      name: 'Cold Brew Bottle',
-      quantity: 1,
-      price: 32.0,
-      imageSrc:
-        'https://tailwindcss.com/plus-assets/img/ecommerce-images/category-page-04-image-card-01.jpg',
-      description:
-        'This glass bottle comes with a mesh insert for steeping tea or cold-brewing coffee. Pour from any angle and remove the top for easy cleaning.',
-    },
-  ],
-  shippingAddress: {
-    name: 'Kristin Watson',
-    address: '7363 Cynthia Pass',
-    city: 'Toronto, ON N3Y 4H8',
-  },
-  billingAddress: {
-    name: 'Kristin Watson',
-    address: '7363 Cynthia Pass',
-    city: 'Toronto, ON N3Y 4H8',
-  },
-  paymentMethod: {
-    type: 'Stripe',
-    cardType: 'Mastercard',
-    last4: '1545',
-  },
-  shippingMethod: {
-    carrier: 'DHL',
-    description: 'Takes up to 3 working days',
-  },
-  summary: {
-    subtotal: 36.0,
-    discount: 18.0,
-    discountCode: 'STUDENT50',
-    shipping: 5.0,
-    total: 23.0,
-  },
-};
+import { useEffect, useState } from 'react';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
+import api from '../api/apiClient';
 
 export default function OrderSuccess() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const orderId = searchParams.get('orderId');
+  const [order, setOrder] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (orderId) {
+      const fetchOrder = async () => {
+        try {
+          const response = await api.get(`/orders/${orderId}`);
+          setOrder(response.data);
+  
+          // Clear cart on success if redirected from Stripe (COD handles it before nav)
+          // We can just blindly call checkout to clear cart
+           // But better to just assume it's done or do it safely
+        } catch (error) {
+          console.error('Failed to fetch order:', error);
+        } finally {
+          setLoading(false);
+        }
+      };
+      
+      fetchOrder();
+    } else {
+        setLoading(false);
+    }
+  }, [orderId]);
+
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <div className="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-indigo-500"></div>
+      </div>
+    );
+  }
+
+  if (!order) {
+     return (
+        <div className="min-h-screen bg-white flex flex-col items-center justify-center p-4">
+            <h1 className="text-2xl font-bold mb-4">Order not found</h1>
+            <Link to="/" className="text-indigo-600 hover:text-indigo-500 font-medium">Return to Home</Link>
+        </div>
+     )
+  }
+
 
   return (
     <div className="bg-white">
@@ -57,29 +60,29 @@ export default function OrderSuccess() {
             It's on the way!
           </h1>
           <p className="mt-4 text-base text-gray-600">
-            Your order #{orderData.orderNumber} has shipped and will be with you
+            Your order #{order.id.slice(0, 8)} has been placed and will be with you
             soon.
           </p>
         </div>
 
-        {/* Tracking Number */}
+        {/* Tracking Number Dummy */}
         <div className="mb-8 border-b border-gray-200 pb-8">
-          <h2 className="text-sm font-medium text-gray-900">Tracking number</h2>
+          <h2 className="text-sm font-medium text-gray-900">Order ID</h2>
           <Link
             to="/orders"
             className="mt-2 text-base font-medium text-indigo-600 hover:text-indigo-500"
           >
-            {orderData.trackingNumber}
+            {order.id}
           </Link>
         </div>
 
         {/* Ordered Items */}
         <div className="mb-8 border-b border-gray-200 pb-8">
-          {orderData.items.map((item) => (
-            <div key={item.id} className="flex gap-6">
+          {order.items.map((item: any) => (
+            <div key={item.id} className="flex gap-6 mb-6 last:mb-0">
               <div className="flex-shrink-0">
                 <img
-                  src={item.imageSrc}
+                  src={item.image || "https://placehold.co/150"}
                   alt={item.name}
                   className="h-24 w-24 rounded-lg object-cover sm:h-32 sm:w-32"
                 />
@@ -88,7 +91,6 @@ export default function OrderSuccess() {
                 <h3 className="text-lg font-semibold text-gray-900">
                   {item.name}
                 </h3>
-                <p className="mt-2 text-sm text-gray-600">{item.description}</p>
                 <div className="mt-4 flex items-center gap-4 text-sm text-gray-600">
                   <span>Quantity {item.quantity}</span>
                   <span className="h-4 w-px bg-gray-300"></span>
@@ -106,42 +108,7 @@ export default function OrderSuccess() {
               Shipping address
             </h2>
             <div className="mt-2 text-sm text-gray-600">
-              <p>{orderData.shippingAddress.name}</p>
-              <p>{orderData.shippingAddress.address}</p>
-              <p>{orderData.shippingAddress.city}</p>
-            </div>
-          </div>
-          <div>
-            <h2 className="text-sm font-semibold text-gray-900">
-              Billing address
-            </h2>
-            <div className="mt-2 text-sm text-gray-600">
-              <p>{orderData.billingAddress.name}</p>
-              <p>{orderData.billingAddress.address}</p>
-              <p>{orderData.billingAddress.city}</p>
-            </div>
-          </div>
-        </div>
-
-        {/* Payment and Shipping Methods */}
-        <div className="mb-8 grid grid-cols-1 gap-8 border-b border-gray-200 pb-8 sm:grid-cols-2">
-          <div>
-            <h2 className="text-sm font-semibold text-gray-900">
-              Payment method
-            </h2>
-            <div className="mt-2 text-sm text-gray-600">
-              <p>{orderData.paymentMethod.type}</p>
-              <p>{orderData.paymentMethod.cardType}</p>
-              <p>••••{orderData.paymentMethod.last4}</p>
-            </div>
-          </div>
-          <div>
-            <h2 className="text-sm font-semibold text-gray-900">
-              Shipping method
-            </h2>
-            <div className="mt-2 text-sm text-gray-600">
-              <p>{orderData.shippingMethod.carrier}</p>
-              <p>{orderData.shippingMethod.description}</p>
+              <p>{order.shippingAddress}</p>
             </div>
           </div>
         </div>
@@ -151,18 +118,9 @@ export default function OrderSuccess() {
           <div className="flex items-start justify-between">
             <div className="space-y-2">
               <div className="flex items-center gap-2">
-                <span className="text-sm text-gray-600">Subtotal</span>
+                  <span className="text-sm text-gray-600">Payment Status</span>
               </div>
-              <div className="flex items-center gap-2">
-                <span className="text-sm text-gray-600">Discount</span>
-                <span className="inline-flex items-center rounded-full bg-gray-100 px-2.5 py-0.5 text-xs font-medium text-gray-800">
-                  {orderData.summary.discountCode}
-                </span>
-              </div>
-              <div className="flex items-center gap-2">
-                <span className="text-sm text-gray-600">Shipping</span>
-              </div>
-              <div className="mt-4">
+               <div className="mt-4">
                 <span className="text-base font-semibold text-gray-900">
                   Total
                 </span>
@@ -170,23 +128,15 @@ export default function OrderSuccess() {
             </div>
             <div className="text-right space-y-2">
               <div>
-                <span className="text-sm text-gray-900">
-                  ${orderData.summary.subtotal.toFixed(2)}
-                </span>
-              </div>
-              <div>
-                <span className="text-sm text-gray-900">
-                  -${orderData.summary.discount.toFixed(2)} (50%)
-                </span>
-              </div>
-              <div>
-                <span className="text-sm text-gray-900">
-                  ${orderData.summary.shipping.toFixed(2)}
-                </span>
+                  <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                      order.status === 'PAID' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'
+                  }`}>
+                      {order.status}
+                  </span>
               </div>
               <div className="mt-4">
                 <span className="text-base font-semibold text-indigo-600">
-                  ${orderData.summary.total.toFixed(2)}
+                  ${order.totalAmount.toFixed(2)}
                 </span>
               </div>
             </div>
@@ -199,7 +149,7 @@ export default function OrderSuccess() {
             onClick={() => navigate('/orders')}
             className="flex-1 rounded-md bg-indigo-600 px-4 py-3 text-base font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
           >
-            Track Progress
+            Track Order
           </button>
           <Link
             to="/"

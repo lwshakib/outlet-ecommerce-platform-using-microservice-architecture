@@ -13,10 +13,6 @@ app.use(cors());
 app.use(express.json());
 app.use(morganMiddleware);
 
-// Health check endpoint
-app.get("/", (req, res) => {
-  res.json({ message: "Order Service is running!" });
-});
 
 app.get("/health", (req, res) => {
   res.json({ status: "Order Service is healthy" });

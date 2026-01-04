@@ -91,7 +91,12 @@ export default function Orders() {
         }
         const user = JSON.parse(userStr);
         const response = await api.get(`/orders?userId=${user.id}`);
-        setOrders(response.data || []);
+        if (Array.isArray(response.data)) {
+          setOrders(response.data);
+        } else {
+          console.error("Orders response is not an array:", response.data);
+          setOrders([]);
+        }
       } catch (error) {
         console.error('Failed to fetch orders:', error);
       } finally {

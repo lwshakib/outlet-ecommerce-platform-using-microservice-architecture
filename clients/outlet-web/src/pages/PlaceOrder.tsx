@@ -97,7 +97,7 @@ export default function PlaceOrder() {
             price: item.price,
             quantity: item.quantity
           })),
-          successUrl: `${window.location.origin}/order-success`,
+          successUrl: `${window.location.origin}/order-success?orderId=${order.id}`,
           cancelUrl: `${window.location.origin}/place-order`
         });
 
@@ -111,7 +111,7 @@ export default function PlaceOrder() {
         // 2. Notify Cart Service to clear cart? Or just navigate
         const sessionId = getCartSessionId();
         await api.post('/cart/checkout', { sessionId });
-        navigate('/order-success');
+        navigate(`/order-success?orderId=${order.id}`);
       }
     } catch (error: any) {
       console.error('Order placement failed:', error);
