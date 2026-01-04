@@ -57,11 +57,20 @@ export const signup = async (req: Request, res: Response) => {
     const hashedPassword = await bcrypt.hash(password, 10);
     const verificationCode = Math.random().toString(36).substring(2, 8).toUpperCase();
 
+    // specific to EMAIL_VERIFICATION
+    await prisma.verificationCode.create({
+      data: {
+        email,
+        code: verificationCode,
+        type: "EMAIL_VERIFICATION",
+        expiresAt: new Date(Date.now() + 86400000), // 24 hours
+      },
+    });
+
     const user = await prisma.user.create({
       data: {
         email,
         password: hashedPassword,
-        verificationCode,
         isVerified: false,
       },
     });
@@ -110,14 +119,25 @@ export const verifyEmail = async (req: Request, res: Response) => {
       return res.status(400).json({ error: "Email already verified" });
     }
 
-    if (user.verificationCode !== code) {
-      return res.status(400).json({ error: "Invalid verification code" });
+    const validCode = await prisma.verificationCode.findFirst({
+      where: {
+        email,
+        code,
+        type: "EMAIL_VERIFICATION",
+        expiresAt: { gt: new Date() },
+      },
+    });
+
+    if (!validCode) {
+      return res.status(400).json({ error: "Invalid or expired verification code" });
     }
 
     await prisma.user.update({
       where: { id: user.id },
-      data: { isVerified: true, verificationCode: null },
+      data: { isVerified: true },
     });
+
+    await prisma.verificationCode.delete({ where: { id: validCode.id } });
 
     res.json({ message: "Email verified successfully. You can now log in." });
   } catch (error: any) {
@@ -222,6 +242,78 @@ export const logout = async (req: Request, res: Response) => {
       });
     }
     res.json({ message: "Logged out successfully" });
+  } catch (error: any) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+export const forgotPassword = async (req: Request, res: Response) => {
+  try {
+    const { email } = req.body;
+    if (!email) return res.status(400).json({ error: "Email is required" });
+
+    const user = await prisma.user.findUnique({ where: { email } });
+    if (!user) return res.status(404).json({ error: "User not found" });
+
+    const resetToken = Math.random().toString(36).substring(2, 8).toUpperCase();
+    
+    await prisma.verificationCode.create({
+      data: {
+        email,
+        code: resetToken,
+        type: "PASSWORD_RESET",
+        expiresAt: new Date(Date.now() + 3600000), // 1 hour
+      }
+    });
+
+    try {
+      await sendEmailGrpc(email, "Reset Password", `Your password reset code is: ${resetToken}`);
+    } catch (err) {
+      console.error("Failed to send reset email:", err);
+      // Don't block flow, just log
+    }
+
+    res.json({ message: "Password reset code sent to your email" });
+  } catch (error: any) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+export const resetPassword = async (req: Request, res: Response) => {
+  try {
+    const { email, code, newPassword } = req.body;
+    if (!email || !code || !newPassword) {
+      return res.status(400).json({ error: "Email, code, and new password are required" });
+    }
+
+    const user = await prisma.user.findUnique({ where: { email } });
+    if (!user) return res.status(404).json({ error: "User not found" });
+
+    const validCode = await prisma.verificationCode.findFirst({
+      where: {
+        email,
+        code,
+        type: "PASSWORD_RESET",
+        expiresAt: { gt: new Date() },
+      },
+    });
+
+    if (!validCode) {
+      return res.status(400).json({ error: "Invalid or expired reset code" });
+    }
+
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+    await prisma.user.update({
+      where: { id: user.id },
+      data: {
+        password: hashedPassword,
+      },
+    });
+
+    await prisma.verificationCode.delete({ where: { id: validCode.id } });
+
+    res.json({ message: "Password reset successfully. You can now log in with your new password." });
   } catch (error: any) {
     res.status(500).json({ error: error.message });
   }

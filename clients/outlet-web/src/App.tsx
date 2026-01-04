@@ -10,6 +10,8 @@ import PlaceOrder from './pages/PlaceOrder';
 import OrderSuccess from './pages/OrderSuccess';
 import Orders from './pages/Orders';
 import ProductDetail from './pages/ProductDetail';
+import ForgotPassword from './pages/ForgotPassword';
+import ResetPassword from './pages/ResetPassword';
 
 export function App() {
   return (
@@ -26,6 +28,8 @@ export function App() {
           <Route path="/order-success" element={<OrderSuccess />} />
           <Route path="/orders" element={<Orders />} />
           <Route path="/product/:productId" element={<ProductDetail />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/reset-password" element={<ResetPassword />} />
         </Routes>
       </main>
       <Footer />

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Dialog, DialogBackdrop, DialogPanel } from '@headlessui/react';
 import {
@@ -25,6 +25,61 @@ const navigation = {
 
 export default function OutletHeader() {
   const [open, setOpen] = useState(false);
+  /* eslint-disable @typescript-eslint/no-explicit-any */
+  const [user, setUser] = useState<any>(() => {
+    const userStr = localStorage.getItem('user');
+    if (userStr) {
+      try {
+        return JSON.parse(userStr);
+      } catch (e) {
+        console.error("Failed to parse user from local storage", e);
+      }
+    }
+    return null;
+  });
+
+  const [cartCount, setCartCount] = useState(0);
+
+  useEffect(() => {
+    const fetchCartCount = async () => {
+      try {
+        const { getCartSessionId } = await import('../utils/cart');
+        const api = (await import('../api/apiClient')).default;
+        const sessionId = getCartSessionId();
+        const response = await api.get(`/cart/${sessionId}`);
+        const items = response.data.items || [];
+        const count = items.reduce((sum: number, item: any) => sum + (item.quantity || 0), 0);
+        setCartCount(count);
+      } catch (error) {
+        console.error("Failed to fetch cart count", error);
+      }
+    };
+
+    fetchCartCount();
+    // Listen for storage changes to update cart count (when items are added in other tabs)
+    window.addEventListener('storage', fetchCartCount);
+    return () => window.removeEventListener('storage', fetchCartCount);
+  }, []);
+
+  const handleLogout = async () => {
+     try {
+        const sessionToken = localStorage.getItem('sessionToken');
+        if (sessionToken) {
+           await import('../api/apiClient').then(mod => {
+              mod.default.post('/auth/logout', { sessionToken });
+           });
+        }
+     } catch (error) {
+        console.error("Logout failed", error);
+     } finally {
+        localStorage.removeItem('accessToken');
+        localStorage.removeItem('refreshToken');
+        localStorage.removeItem('sessionToken');
+        localStorage.removeItem('user');
+        setUser(null);
+        window.location.href = '/sign-in';
+     }
+  };
 
   return (
     <div className="bg-white">
@@ -79,22 +134,42 @@ export default function OutletHeader() {
             </div>
 
             <div className="space-y-6 border-t border-gray-200 px-4 py-6">
-              <div className="flow-root">
-                <Link
-                  to="/sign-in"
-                  className="-m-2 block p-2 font-medium text-gray-900"
-                >
-                  Sign in
-                </Link>
-              </div>
-              <div className="flow-root">
-                <Link
-                  to="/create-account"
-                  className="-m-2 block p-2 font-medium text-gray-900"
-                >
-                  Create account
-                </Link>
-              </div>
+              {user ? (
+                 <>
+                  <div className="flow-root">
+                    <span className="-m-2 block p-2 font-medium text-gray-900">
+                      Hi, {user.email?.split('@')[0]}
+                    </span>
+                  </div>
+                  <div className="flow-root">
+                    <button
+                      onClick={handleLogout}
+                      className="-m-2 block p-2 font-medium text-red-600 w-full text-left"
+                    >
+                      Sign out
+                    </button>
+                  </div>
+                 </>
+              ) : (
+                <>
+                  <div className="flow-root">
+                    <Link
+                      to="/sign-in"
+                      className="-m-2 block p-2 font-medium text-gray-900"
+                    >
+                      Sign in
+                    </Link>
+                  </div>
+                  <div className="flow-root">
+                    <Link
+                      to="/create-account"
+                      className="-m-2 block p-2 font-medium text-gray-900"
+                    >
+                      Create account
+                    </Link>
+                  </div>
+                </>
+              )}
             </div>
 
             <div className="border-t border-gray-200 px-4 py-6">
@@ -179,19 +254,36 @@ export default function OutletHeader() {
 
               <div className="ml-auto flex items-center">
                 <div className="hidden lg:flex lg:flex-1 lg:items-center lg:justify-end lg:space-x-6">
-                  <Link
-                    to="/sign-in"
-                    className="text-sm font-medium text-gray-700 hover:text-gray-800"
-                  >
-                    Sign in
-                  </Link>
-                  <span aria-hidden="true" className="h-6 w-px bg-gray-200" />
-                  <Link
-                    to="/create-account"
-                    className="text-sm font-medium text-gray-700 hover:text-gray-800"
-                  >
-                    Create account
-                  </Link>
+                  {user ? (
+                    <>
+                      <span className="text-sm font-medium text-gray-700">
+                        Hi, {user.email?.split('@')[0]}
+                      </span>
+                      <span aria-hidden="true" className="h-6 w-px bg-gray-200" />
+                      <button
+                        onClick={handleLogout}
+                        className="text-sm font-medium text-red-600 hover:text-red-500"
+                      >
+                        Sign out
+                      </button>
+                    </>
+                  ) : (
+                    <>
+                      <Link
+                        to="/sign-in"
+                        className="text-sm font-medium text-gray-700 hover:text-gray-800"
+                      >
+                        Sign in
+                      </Link>
+                      <span aria-hidden="true" className="h-6 w-px bg-gray-200" />
+                      <Link
+                        to="/create-account"
+                        className="text-sm font-medium text-gray-700 hover:text-gray-800"
+                      >
+                        Create account
+                      </Link>
+                    </>
+                  )}
                 </div>
 
                 <div className="hidden lg:ml-8 lg:flex">
@@ -228,7 +320,7 @@ export default function OutletHeader() {
                       className="size-6 shrink-0 text-gray-400 group-hover:text-gray-500"
                     />
                     <span className="ml-2 text-sm font-medium text-gray-700 group-hover:text-gray-800">
-                      0
+                      {cartCount}
                     </span>
                     <span className="sr-only">items in cart, view bag</span>
                   </Link>

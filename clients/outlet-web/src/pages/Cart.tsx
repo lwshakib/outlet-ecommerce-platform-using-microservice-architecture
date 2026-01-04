@@ -1,61 +1,69 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { TrashIcon, PlusIcon, MinusIcon } from '@heroicons/react/24/outline';
-
-// Mock cart items - in a real app, this would come from state/context/API
-const initialCartItems = [
-  {
-    id: 1,
-    name: 'Earthen Bottle',
-    price: 48,
-    quantity: 1,
-    imageSrc:
-      'https://tailwindcss.com/plus-assets/img/ecommerce-images/category-page-04-image-card-01.jpg',
-    imageAlt:
-      'Tall slender porcelain bottle with natural clay textured body and cork stopper.',
-  },
-  {
-    id: 2,
-    name: 'Nomad Tumbler',
-    price: 35,
-    quantity: 2,
-    imageSrc:
-      'https://tailwindcss.com/plus-assets/img/ecommerce-images/category-page-04-image-card-02.jpg',
-    imageAlt:
-      'Olive drab green insulated bottle with flared screw lid and flat top.',
-  },
-];
+import api from '../api/apiClient';
+import { getCartSessionId } from '../utils/cart';
 
 export default function Cart() {
   const navigate = useNavigate();
-  const [cartItems, setCartItems] = useState(initialCartItems);
+  const [cartItems, setCartItems] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const updateQuantity = (id: number, change: number) => {
-    setCartItems((items) =>
-      items.map((item) => {
-        if (item.id === id) {
-          const newQuantity = item.quantity + change;
-          return {
-            ...item,
-            quantity: newQuantity > 0 ? newQuantity : 1,
-          };
-        }
-        return item;
-      })
-    );
+  const fetchCart = async () => {
+    try {
+      const sessionId = getCartSessionId();
+      const response = await api.get(`/cart/${sessionId}`);
+      setCartItems(response.data.items || []);
+    } catch (error) {
+      console.error('Failed to fetch cart:', error);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const removeItem = (id: number) => {
-    setCartItems((items) => items.filter((item) => item.id !== id));
+  useEffect(() => {
+    fetchCart();
+  }, []);
+
+  const updateQuantity = async (productId: string, change: number) => {
+    try {
+      const sessionId = getCartSessionId();
+      if (change > 0) {
+        await api.post('/cart/add', { sessionId, productId, quantity: 1 });
+      } else {
+        await api.post('/cart/remove', { sessionId, productId, quantity: 1 });
+      }
+      fetchCart();
+    } catch (error) {
+      console.error('Failed to update quantity:', error);
+    }
+  };
+
+  const removeItem = async (productId: string) => {
+    try {
+      const sessionId = getCartSessionId();
+      await api.post('/cart/remove', { sessionId, productId });
+      fetchCart();
+    } catch (error) {
+      console.error('Failed to remove item:', error);
+    }
   };
 
   const subtotal = cartItems.reduce(
-    (sum, item) => sum + item.price * item.quantity,
+    (sum, item) => sum + (item.price || 0) * (item.quantity || 0),
     0
   );
-  const shipping = subtotal > 0 ? 10 : 0;
+  const shipping = subtotal > 0 && subtotal < 100 ? 10 : 0;
   const tax = subtotal * 0.1;
   const total = subtotal + shipping + tax;
+
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <div className="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-indigo-500"></div>
+      </div>
+    );
+  }
 
   return (
     <div className="bg-white">
@@ -86,11 +94,11 @@ export default function Cart() {
                 className="divide-y divide-gray-200 border-b border-t border-gray-200"
               >
                 {cartItems.map((item) => (
-                  <li key={item.id} className="flex py-6 sm:py-10">
+                  <li key={item.productId} className="flex py-6 sm:py-10">
                     <div className="flex-shrink-0">
                       <img
-                        src={item.imageSrc}
-                        alt={item.imageAlt}
+                        src={item.image || 'https://loremflickr.com/800/600/luxury'}
+                        alt={item.name}
                         className="h-24 w-24 rounded-md object-cover object-center sm:h-48 sm:w-48"
                       />
                     </div>
@@ -100,16 +108,16 @@ export default function Cart() {
                         <div>
                           <div className="flex justify-between">
                             <h3 className="text-sm">
-                              <a
-                                href="#"
+                              <Link
+                                to={`/product/${item.productId}`}
                                 className="font-medium text-gray-700 hover:text-gray-800"
                               >
                                 {item.name}
-                              </a>
+                              </Link>
                             </h3>
                           </div>
                           <p className="mt-1 text-sm font-medium text-gray-900">
-                            ${item.price}
+                            ${item.price.toLocaleString()}
                           </p>
                         </div>
 
@@ -117,7 +125,7 @@ export default function Cart() {
                           <div className="absolute right-0 top-0">
                             <button
                               type="button"
-                              onClick={() => removeItem(item.id)}
+                              onClick={() => removeItem(item.productId)}
                               className="-m-2 inline-flex p-2 text-gray-400 hover:text-gray-500"
                             >
                               <span className="sr-only">Remove</span>
@@ -131,7 +139,7 @@ export default function Cart() {
                           <div className="flex items-center space-x-2">
                             <button
                               type="button"
-                              onClick={() => updateQuantity(item.id, -1)}
+                              onClick={() => updateQuantity(item.productId, -1)}
                               className="rounded-md border border-gray-300 p-1 hover:bg-gray-50"
                             >
                               <span className="sr-only">Decrease quantity</span>
@@ -145,7 +153,7 @@ export default function Cart() {
                             </span>
                             <button
                               type="button"
-                              onClick={() => updateQuantity(item.id, 1)}
+                              onClick={() => updateQuantity(item.productId, 1)}
                               className="rounded-md border border-gray-300 p-1 hover:bg-gray-50"
                             >
                               <span className="sr-only">Increase quantity</span>
@@ -215,7 +223,14 @@ export default function Cart() {
               <div className="mt-6">
                 <button
                   type="button"
-                  onClick={() => navigate('/place-order')}
+                  onClick={() => {
+                    const token = localStorage.getItem('accessToken');
+                    if (token) {
+                      navigate('/place-order');
+                    } else {
+                      navigate('/sign-in', { state: { from: '/cart' } });
+                    }
+                  }}
                   className="w-full rounded-md border border-transparent bg-indigo-600 px-4 py-3 text-base font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:ring-offset-gray-50"
                 >
                   Checkout

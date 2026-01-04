@@ -4,6 +4,8 @@ import dotenv from "dotenv";
 import morganMiddleware from "./src/middlewares/morgan.middleware";
 import { errorHandler } from "./src/middlewares/error.middleware";
 import logger from "./src/logger/winston.logger";
+import productRoutes from "./src/routes/product.routes";
+import { startGrpcServer } from "./src/grpc/product.server";
 
 dotenv.config();
 
@@ -14,16 +16,16 @@ app.use(cors());
 app.use(express.json());
 app.use(morganMiddleware);
 
-app.get("/", (req, res) => {
-  res.json({ message: "Product Service is running!" });
-});
 
 app.get("/health", (req, res) => {
   res.json({ status: "Product Service is healthy" });
 });
 
+app.use("/", productRoutes);
+
 app.use(errorHandler);
 
 app.listen(PORT, () => {
   logger.info(`Product Service listening on port ${PORT}`);
+  startGrpcServer();
 });

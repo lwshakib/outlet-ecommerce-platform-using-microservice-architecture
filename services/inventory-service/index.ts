@@ -3,6 +3,7 @@ import cors from "cors";
 import morganMiddleware from "./src/middlewares/morgan.middleware";
 import { errorHandler } from "./src/middlewares/error.middleware";
 import logger from "./src/logger/winston.logger";
+import { prisma } from "./src/db";
 
 const app = express();
 const PORT = process.env.PORT || 3005;
@@ -16,8 +17,51 @@ app.get("/", (req, res) => {
   res.json({ message: "Inventory Service is running!" });
 });
 
-app.get("/health", (req, res) => {
-  res.json({ status: "Inventory Service is healthy" });
+// Update stock
+app.post("/stock", async (req, res) => {
+  try {
+    const { productId, stock, location } = req.body;
+    const inventory = await prisma.inventory.upsert({
+      where: { productId },
+      update: { stock, location },
+      create: { productId, stock, location }
+    });
+    res.json(inventory);
+  } catch (error) {
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+// Get stock
+app.get("/stock/:productId", async (req, res) => {
+  try {
+    const inventory = await prisma.inventory.findUnique({
+      where: { productId: req.params.productId }
+    });
+    if (!inventory) return res.status(404).json({ error: "Inventory not found" });
+    res.json(inventory);
+  } catch (error) {
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+// Adjust stock (atomic)
+app.post("/stock/adjust", async (req, res) => {
+  try {
+    const { productId, adjustment } = req.body; // adjustment can be positive or negative
+    const inventory = await prisma.inventory.update({
+      where: { productId },
+      data: {
+        stock: {
+          increment: adjustment
+        }
+      }
+    });
+    res.json(inventory);
+  } catch (error) {
+    logger.error("Error adjusting stock:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
 });
 
 app.use(errorHandler);

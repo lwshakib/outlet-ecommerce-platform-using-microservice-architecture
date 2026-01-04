@@ -1,145 +1,14 @@
 import { useParams, Link } from 'react-router-dom';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   MinusIcon,
   PlusIcon,
   ShoppingBagIcon,
+  CheckIcon,
 } from '@heroicons/react/24/outline';
+import api from '../api/apiClient';
 
-// Mock product data - in a real app, this would come from an API
-const mockProducts: Record<string, any> = {
-  '1': {
-    id: 1,
-    name: 'Earthen Bottle',
-    price: 48,
-    description:
-      'Tall slender porcelain bottle with natural clay textured body and cork stopper. Perfect for storing your favorite beverages or as a decorative piece.',
-    imageSrc:
-      'https://tailwindcss.com/plus-assets/img/ecommerce-images/category-page-04-image-card-01.jpg',
-    imageAlt:
-      'Tall slender porcelain bottle with natural clay textured body and cork stopper.',
-    images: [
-      'https://tailwindcss.com/plus-assets/img/ecommerce-images/category-page-04-image-card-01.jpg',
-      'https://tailwindcss.com/plus-assets/img/ecommerce-images/category-page-04-image-card-01.jpg',
-      'https://tailwindcss.com/plus-assets/img/ecommerce-images/category-page-04-image-card-01.jpg',
-    ],
-    inStock: true,
-    colors: [
-      { name: 'Natural', class: 'bg-gray-200', selectedClass: 'ring-gray-400' },
-      { name: 'White', class: 'bg-white', selectedClass: 'ring-gray-400' },
-      { name: 'Black', class: 'bg-gray-900', selectedClass: 'ring-gray-400' },
-    ],
-    sizes: [
-      { name: 'Small', inStock: true },
-      { name: 'Medium', inStock: true },
-      { name: 'Large', inStock: false },
-    ],
-  },
-  '2': {
-    id: 2,
-    name: 'Nomad Tumbler',
-    price: 35,
-    description:
-      'Olive drab green insulated bottle with flared screw lid and flat top. Keeps your drinks at the perfect temperature for hours.',
-    imageSrc:
-      'https://tailwindcss.com/plus-assets/img/ecommerce-images/category-page-04-image-card-02.jpg',
-    imageAlt:
-      'Olive drab green insulated bottle with flared screw lid and flat top.',
-    images: [
-      'https://tailwindcss.com/plus-assets/img/ecommerce-images/category-page-04-image-card-02.jpg',
-    ],
-    inStock: true,
-  },
-  '3': {
-    id: 3,
-    name: 'Focus Paper Refill',
-    price: 89,
-    description:
-      'Person using a pen to cross a task off a productivity paper card. Perfect for organizing your daily tasks and staying productive.',
-    imageSrc:
-      'https://tailwindcss.com/plus-assets/img/ecommerce-images/category-page-04-image-card-03.jpg',
-    imageAlt:
-      'Person using a pen to cross a task off a productivity paper card.',
-    images: [
-      'https://tailwindcss.com/plus-assets/img/ecommerce-images/category-page-04-image-card-03.jpg',
-    ],
-    inStock: true,
-  },
-  '4': {
-    id: 4,
-    name: 'Machined Mechanical Pencil',
-    price: 35,
-    description:
-      'Hand holding black machined steel mechanical pencil with brass tip and top. Precision engineering meets elegant design.',
-    imageSrc:
-      'https://tailwindcss.com/plus-assets/img/ecommerce-images/category-page-04-image-card-04.jpg',
-    imageAlt:
-      'Hand holding black machined steel mechanical pencil with brass tip and top.',
-    images: [
-      'https://tailwindcss.com/plus-assets/img/ecommerce-images/category-page-04-image-card-04.jpg',
-    ],
-    inStock: true,
-  },
-  '5': {
-    id: 5,
-    name: 'Focus Card Tray',
-    price: 64,
-    description:
-      'Paper card sitting upright in walnut card holder on desk. Beautifully crafted from premium walnut wood.',
-    imageSrc:
-      'https://tailwindcss.com/plus-assets/img/ecommerce-images/category-page-04-image-card-05.jpg',
-    imageAlt: 'Paper card sitting upright in walnut card holder on desk.',
-    images: [
-      'https://tailwindcss.com/plus-assets/img/ecommerce-images/category-page-04-image-card-05.jpg',
-    ],
-    inStock: true,
-  },
-  '6': {
-    id: 6,
-    name: 'Focus Multi-Pack',
-    price: 39,
-    description:
-      'Stack of 3 small drab green cardboard paper card refill boxes with white text. Everything you need to stay organized.',
-    imageSrc:
-      'https://tailwindcss.com/plus-assets/img/ecommerce-images/category-page-04-image-card-06.jpg',
-    imageAlt:
-      'Stack of 3 small drab green cardboard paper card refill boxes with white text.',
-    images: [
-      'https://tailwindcss.com/plus-assets/img/ecommerce-images/category-page-04-image-card-06.jpg',
-    ],
-    inStock: true,
-  },
-  '7': {
-    id: 7,
-    name: 'Brass Scissors',
-    price: 50,
-    description:
-      'Brass scissors with geometric design, black steel finger holes, and included upright brass stand. A perfect blend of form and function.',
-    imageSrc:
-      'https://tailwindcss.com/plus-assets/img/ecommerce-images/category-page-04-image-card-07.jpg',
-    imageAlt:
-      'Brass scissors with geometric design, black steel finger holes, and included upright brass stand.',
-    images: [
-      'https://tailwindcss.com/plus-assets/img/ecommerce-images/category-page-04-image-card-07.jpg',
-    ],
-    inStock: true,
-  },
-  '8': {
-    id: 8,
-    name: 'Focus Carry Pouch',
-    price: 32,
-    description:
-      'Textured gray felt pouch for paper cards with snap button flap and elastic pen holder loop. Portable and stylish.',
-    imageSrc:
-      'https://tailwindcss.com/plus-assets/img/ecommerce-images/category-page-04-image-card-08.jpg',
-    imageAlt:
-      'Textured gray felt pouch for paper cards with snap button flap and elastic pen holder loop.',
-    images: [
-      'https://tailwindcss.com/plus-assets/img/ecommerce-images/category-page-04-image-card-08.jpg',
-    ],
-    inStock: true,
-  },
-};
+import { getCartSessionId } from '../utils/cart';
 
 export default function ProductDetail() {
   const { productId } = useParams<{ productId: string }>();
@@ -147,8 +16,52 @@ export default function ProductDetail() {
   const [quantity, setQuantity] = useState(1);
   const [selectedColor, setSelectedColor] = useState<string | null>(null);
   const [selectedSize, setSelectedSize] = useState<string | null>(null);
+  const [cartLoading, setCartLoading] = useState(false);
+  const [isAdded, setIsAdded] = useState(false);
 
-  const product = productId ? mockProducts[productId] : null;
+  const [product, setProduct] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+
+  const [relatedProducts, setRelatedProducts] = useState<any[]>([]);
+
+  useEffect(() => {
+    const fetchProduct = async () => {
+      try {
+        const response = await api.get(`/catalog/products/${productId}`);
+        const productData = response.data;
+        
+        // Fetch stock info
+        try {
+          const stockResponse = await api.get(`/inventory/stock/${productId}`);
+          productData.inStock = stockResponse.data.stock > 0;
+          productData.stockCount = stockResponse.data.stock;
+        } catch (err) {
+          // Fallback if no inventory record yet
+          productData.inStock = true;
+          productData.stockCount = 10;
+        }
+        
+        setProduct(productData);
+        
+        // Fetch related products
+        const relatedResponse = await api.get('/catalog/products');
+        setRelatedProducts(Array.isArray(relatedResponse.data) ? relatedResponse.data.filter((p: any) => p.id !== productId).slice(0, 4) : []);
+      } catch (error) {
+        console.error("Failed to fetch product data:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    if (productId) fetchProduct();
+  }, [productId]);
+
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <div className="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-indigo-500"></div>
+      </div>
+    );
+  }
 
   if (!product) {
     return (
@@ -174,15 +87,23 @@ export default function ProductDetail() {
   }
 
   const images = product.images || [product.imageSrc];
-  const handleAddToCart = () => {
-    // Handle add to cart logic here
-    console.log('Add to cart:', {
-      productId: product.id,
-      quantity,
-      color: selectedColor,
-      size: selectedSize,
-    });
-    alert('Product added to cart!');
+  const handleAddToCart = async () => {
+    setCartLoading(true);
+    try {
+      const sessionId = getCartSessionId();
+      await api.post('/cart/add', {
+        sessionId,
+        productId: product.id,
+        quantity,
+      });
+      setIsAdded(true);
+      setTimeout(() => setIsAdded(false), 3000);
+    } catch (error: any) {
+      console.error('Failed to add to cart:', error);
+      alert(error.response?.data?.error || 'Failed to add to cart');
+    } finally {
+      setCartLoading(false);
+    }
   };
 
   return (
@@ -374,14 +295,21 @@ export default function ProductDetail() {
               <button
                 type="button"
                 onClick={handleAddToCart}
-                disabled={!product.inStock}
+                disabled={!product.inStock || cartLoading}
                 className={`flex w-full items-center justify-center rounded-md border border-transparent px-8 py-3 text-base font-medium text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:ring-offset-gray-50 ${
-                  product.inStock
+                  product.inStock && !cartLoading
                     ? 'bg-indigo-600 hover:bg-indigo-700'
                     : 'bg-gray-400 cursor-not-allowed'
                 }`}
               >
-                {product.inStock ? (
+                {cartLoading ? (
+                  'Adding...'
+                ) : isAdded ? (
+                  <>
+                    <CheckIcon className="mr-2 h-5 w-5" />
+                    Added to cart
+                  </>
+                ) : product.inStock ? (
                   <>
                     <ShoppingBagIcon className="mr-2 h-5 w-5" />
                     Add to cart
@@ -428,38 +356,28 @@ export default function ProductDetail() {
             Customers also bought
           </h2>
           <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-4">
-            {Object.values(mockProducts)
-              .filter((p: any) => p.id !== product.id)
-              .slice(0, 4)
-              .map((relatedProduct: any) => (
-                <div key={relatedProduct.id} className="group relative">
-                  <Link to={`/product/${relatedProduct.id}`}>
-                    <div className="relative aspect-square w-full overflow-hidden rounded-lg bg-gray-100">
-                      <img
-                        src={relatedProduct.imageSrc}
-                        alt={relatedProduct.imageAlt || relatedProduct.name}
-                        className="h-full w-full object-cover object-center group-hover:opacity-75"
-                      />
-                      {/* Price tag overlay */}
-                      <div className="absolute bottom-2 right-2 rounded-md bg-gray-900 px-2.5 py-1">
-                        <span className="text-sm font-medium text-white">
-                          ${relatedProduct.price}
-                        </span>
-                      </div>
+            {relatedProducts.map((relatedProduct: any) => (
+              <div key={relatedProduct.id} className="group relative">
+                <Link to={`/product/${relatedProduct.id}`}>
+                  <div className="relative aspect-square w-full overflow-hidden rounded-lg bg-gray-100">
+                    <img
+                      src={relatedProduct.images?.[0]}
+                      alt={relatedProduct.name}
+                      className="h-full w-full object-cover object-center group-hover:opacity-75"
+                    />
+                    {/* Price tag overlay */}
+                    <div className="absolute bottom-2 right-2 rounded-md bg-gray-900 px-2.5 py-1">
+                      <span className="text-sm font-medium text-white">
+                        ${relatedProduct.price}
+                      </span>
                     </div>
-                    <div className="mt-4">
-                      <h3 className="text-base font-semibold text-gray-900">
-                        {relatedProduct.name}
-                      </h3>
-                      {relatedProduct.colors && (
-                        <p className="mt-1 text-sm text-gray-500">
-                          {relatedProduct.colors
-                            .map((c: any) => c.name)
-                            .join(' and ')}
-                        </p>
-                      )}
-                    </div>
-                  </Link>
+                  </div>
+                  <div className="mt-4">
+                    <h3 className="text-base font-semibold text-gray-900">
+                      {relatedProduct.name}
+                    </h3>
+                  </div>
+                </Link>
                   <button
                     type="button"
                     onClick={() => {
