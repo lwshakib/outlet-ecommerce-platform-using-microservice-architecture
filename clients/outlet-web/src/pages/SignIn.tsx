@@ -1,13 +1,17 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import api from '../api/apiClient';
 
 export default function SignIn() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+  const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError('');
+    
     try {
       const response = await api.post('/auth/signin', { email, password });
       const { accessToken, refreshToken, sessionToken, user } = response.data;
@@ -20,7 +24,15 @@ export default function SignIn() {
       console.log('Signed in successfully:', user);
       window.location.href = '/';
     } catch (error: any) {
-      alert(error.response?.data?.error || 'Failed to sign in');
+      const errorMsg = error.response?.data?.error || 'Failed to sign in';
+      setError(errorMsg);
+      
+      // If user is not verified, redirect to verify page
+      if (errorMsg.toLowerCase().includes('verify')) {
+        setTimeout(() => {
+          navigate(`/verify-email?email=${encodeURIComponent(email)}`);
+        }, 1500);
+      }
     }
   };
 
@@ -88,6 +100,15 @@ export default function SignIn() {
                 />
               </div>
             </div>
+
+            {error && (
+              <div className="text-red-500 text-sm text-center">
+                {error}
+                {error.toLowerCase().includes('verify') && (
+                  <p className="text-xs text-gray-500 mt-1">Redirecting to verification page...</p>
+                )}
+              </div>
+            )}
 
             <div>
               <button

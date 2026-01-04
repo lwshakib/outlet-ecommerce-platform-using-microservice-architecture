@@ -2,6 +2,8 @@ import type { Request, Response } from "express";
 import bcrypt from "bcryptjs";
 import { prisma } from "../db";
 import { generateAccessToken, generateRefreshToken, verifyRefreshToken } from "../utils/token";
+import { sendEmailGrpc } from "../grpc/email.client";
+import { sendToQueue } from "../rabbitmq";
 
 const USER_SERVICE_URL = process.env.USER_SERVICE_URL || "http://localhost:3003";
 
@@ -53,11 +55,14 @@ export const signup = async (req: Request, res: Response) => {
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
+    const verificationCode = Math.random().toString(36).substring(2, 8).toUpperCase();
 
     const user = await prisma.user.create({
       data: {
         email,
         password: hashedPassword,
+        verificationCode,
+        isVerified: false,
       },
     });
 
@@ -76,16 +81,45 @@ export const signup = async (req: Request, res: Response) => {
       console.error("Failed to create user in user-service:", err);
     }
 
-    const { session, accessToken, refreshToken } = await createSession(user.id, req);
-    await recordLoginHistory(user.id, req, "SUCCESS", "EMAIL");
+    // Send verification email via gRPC
+    try {
+      await sendEmailGrpc(email, "Verify your email", `Your verification code is: ${verificationCode}`);
+    } catch (err) {
+      console.error("Failed to send verification email:", err);
+    }
 
     res.status(201).json({
-      message: "User created successfully",
-      accessToken,
-      refreshToken,
-      sessionToken: session.token,
-      user: { id: user.id, email: user.email, role: user.role },
+      message: "Verification email sent. Please verify your email to log in.",
+      email: user.email,
     });
+  } catch (error: any) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+export const verifyEmail = async (req: Request, res: Response) => {
+  try {
+    const { email, code } = req.body;
+
+    const user = await prisma.user.findUnique({ where: { email } });
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    if (user.isVerified) {
+      return res.status(400).json({ error: "Email already verified" });
+    }
+
+    if (user.verificationCode !== code) {
+      return res.status(400).json({ error: "Invalid verification code" });
+    }
+
+    await prisma.user.update({
+      where: { id: user.id },
+      data: { isVerified: true, verificationCode: null },
+    });
+
+    res.json({ message: "Email verified successfully. You can now log in." });
   } catch (error: any) {
     res.status(500).json({ error: error.message });
   }
@@ -107,7 +141,24 @@ export const signin = async (req: Request, res: Response) => {
       return res.status(400).json({ error: "Invalid credentials" });
     }
 
+    if (!user.isVerified) {
+       return res.status(403).json({ error: "Please verify your email first" });
+    }
+
     const { session, accessToken, refreshToken } = await createSession(user.id, req);
+    
+    const loginHistoryCount = await prisma.loginHistory.count({ where: { userId: user.id, status: "SUCCESS" } });
+    
+    // Send welcome email on first successful login (or strictly first time)
+    // Here logic is simplified: if no previous history, send welcome.
+    if (loginHistoryCount === 0) {
+       sendToQueue({
+          to: email,
+          subject: "Welcome to Outlet Ecommerce",
+          body: "Welcome to our platform! We are excited to have you on board."
+       });
+    }
+
     await recordLoginHistory(user.id, req, "SUCCESS", "EMAIL");
 
     res.json({

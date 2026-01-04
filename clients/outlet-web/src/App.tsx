@@ -4,12 +4,12 @@ import Footer from './components/Footer';
 import Home from './pages/Home';
 import SignIn from './pages/SignIn';
 import CreateAccount from './pages/CreateAccount';
+import VerifyEmail from './pages/VerifyEmail';
 import Cart from './pages/Cart';
 import PlaceOrder from './pages/PlaceOrder';
 import OrderSuccess from './pages/OrderSuccess';
 import Orders from './pages/Orders';
 import ProductDetail from './pages/ProductDetail';
-
 
 export function App() {
   return (
@@ -20,6 +20,7 @@ export function App() {
           <Route path="/" element={<Home />} />
           <Route path="/sign-in" element={<SignIn />} />
           <Route path="/create-account" element={<CreateAccount />} />
+          <Route path="/verify-email" element={<VerifyEmail />} />
           <Route path="/cart" element={<Cart />} />
           <Route path="/place-order" element={<PlaceOrder />} />
           <Route path="/order-success" element={<OrderSuccess />} />

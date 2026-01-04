@@ -26,21 +26,14 @@ export default function CreateAccount() {
     }
 
     try {
-      const response = await api.post('/auth/signup', {
+      await api.post('/auth/signup', {
         email: formData.email,
         password: formData.password,
         name: `${formData.firstName} ${formData.lastName}`.trim(),
       });
 
-      const { accessToken, refreshToken, sessionToken, user } = response.data;
-
-      localStorage.setItem('accessToken', accessToken);
-      localStorage.setItem('refreshToken', refreshToken);
-      localStorage.setItem('sessionToken', sessionToken);
-      localStorage.setItem('user', JSON.stringify(user));
-
-      console.log('Account created successfully:', user);
-      window.location.href = '/';
+      // Navigate to verification page with email in query param
+      window.location.href = `/verify-email?email=${encodeURIComponent(formData.email)}`;
     } catch (error: any) {
       alert(error.response?.data?.error || 'Failed to create account');
     }
