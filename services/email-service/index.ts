@@ -5,12 +5,15 @@ import { sendEmail } from "./src/mailer";
 import { connectRabbitMQ } from "./src/rabbitmq";
 import { startGRPCServer } from "./src/grpc";
 import { prisma } from "./src/db";
+import morganMiddleware from "./src/middlewares/morgan.middleware";
+import { errorHandler } from "./src/middlewares/error.middleware";
 
 const app = express();
 const PORT = process.env.PORT || 3002;
 
 app.use(cors());
 app.use(express.json());
+app.use(morganMiddleware);
 
 // Health check
 app.get("/health", (req, res) => {
@@ -51,6 +54,8 @@ connectRabbitMQ();
 
 // Start gRPC server
 startGRPCServer();
+
+app.use(errorHandler);
 
 app.listen(PORT, () => {
   console.log(`Email service API listening on port ${PORT}`);

@@ -3,16 +3,13 @@ import cors from "cors";
 import proxy from "express-http-proxy";
 
 import express from "express";
-
-import morgan from "morgan";
-
 import rateLimit from "express-rate-limit";
-
-import swaggerUi from "swagger-ui-express";
-
-import axios from "axios";
-
 import cookieParser from "cookie-parser";
+import swaggerUi from "swagger-ui-express";
+import axios from "axios";
+import morganMiddleware from "./src/middlewares/morgan.middleware";
+import { errorHandler } from "./src/middlewares/error.middleware";
+import logger from "./src/logger/winston.logger";
 
 const app = express();
 const PORT = process.env.PORT || 8080;
@@ -31,7 +28,7 @@ const limiter = rateLimit({
 });
 
 app.use(limiter);
-app.use(morgan("combined"));
+app.use(morganMiddleware);
 app.use(cookieParser());
 app.use(cors());
 app.use(express.json());
@@ -56,6 +53,8 @@ app.use("/cart", proxy("http://localhost:3006")); // cart-service
 app.use("/orders", proxy("http://localhost:3007")); // order-service
 app.use("/payments", proxy("http://localhost:3008")); // payment-service
 app.use("/products", proxy("http://localhost:3009")); // product-service
+
+app.use(errorHandler);
 
 app.listen(PORT, () => {
   console.log(`API Gateway listening on port ${PORT}`);

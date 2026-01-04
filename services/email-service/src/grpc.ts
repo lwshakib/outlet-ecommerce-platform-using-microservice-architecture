@@ -1,9 +1,12 @@
 import * as grpc from "@grpc/grpc-js";
 import * as protoLoader from "@grpc/proto-loader";
 import path from "path";
+import { fileURLToPath } from "url";
 import { sendEmail } from "./mailer";
 
-const PROTO_PATH = path.join(import.meta.dir, "../proto/email.proto");
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const PROTO_PATH = path.join(__dirname, "../proto/email.proto");
 
 const packageDefinition = protoLoader.loadSync(PROTO_PATH, {
   keepCase: true,
