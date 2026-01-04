@@ -56,6 +56,78 @@ app.get("/products/:id", async (req, res) => {
   }
 });
 
+// Get products by company
+app.get("/products/company/:companyId", async (req, res) => {
+  try {
+    const products = await prisma.product.findMany({
+      where: { companyId: req.params.companyId },
+      include: { category: true }
+    });
+    res.json(products);
+  } catch (error) {
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+// Create product
+app.post("/products", async (req, res) => {
+  try {
+    const { name, description, price, images, categoryId, companyId, companyName, initialStock } = req.body;
+    
+    const product = await prisma.product.create({
+      data: {
+        name,
+        description,
+        price,
+        images,
+        categoryId,
+        companyId,
+        companyName,
+      }
+    });
+
+    // Notify inventory-service to create stock entry
+    try {
+      await fetch(process.env.INVENTORY_SERVICE_URL || "http://localhost:3005/stock", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ productId: product.id, quantity: initialStock || 0 })
+      });
+    } catch (err) {
+      logger.error("Failed to create inventory entry:", err);
+    }
+
+    res.status(201).json(product);
+  } catch (error) {
+    logger.error("Error creating product:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+// Update product
+app.put("/products/:id", async (req, res) => {
+  try {
+    const { name, description, price, images, categoryId } = req.body;
+    const product = await prisma.product.update({
+      where: { id: req.params.id },
+      data: { name, description, price, images, categoryId }
+    });
+    res.json(product);
+  } catch (error) {
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+// Delete product
+app.delete("/products/:id", async (req, res) => {
+  try {
+    await prisma.product.delete({ where: { id: req.params.id } });
+    res.status(204).send();
+  } catch (error) {
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
 // Get categories
 app.get("/categories", async (req, res) => {
   try {

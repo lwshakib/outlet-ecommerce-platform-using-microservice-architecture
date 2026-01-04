@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { TrashIcon, PlusIcon, MinusIcon } from '@heroicons/react/24/outline';
 import api from '../api/apiClient';
-import { getCartSessionId } from '../utils/cart';
+import { getCartSessionId, triggerCartUpdate } from '../utils/cart';
 
 export default function Cart() {
   const navigate = useNavigate();
@@ -34,6 +34,7 @@ export default function Cart() {
         await api.post('/cart/remove', { sessionId, productId, quantity: 1 });
       }
       fetchCart();
+      triggerCartUpdate();
     } catch (error) {
       console.error('Failed to update quantity:', error);
     }
@@ -44,6 +45,7 @@ export default function Cart() {
       const sessionId = getCartSessionId();
       await api.post('/cart/remove', { sessionId, productId });
       fetchCart();
+      triggerCartUpdate();
     } catch (error) {
       console.error('Failed to remove item:', error);
     }

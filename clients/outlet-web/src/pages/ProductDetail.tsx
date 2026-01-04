@@ -8,7 +8,7 @@ import {
 } from '@heroicons/react/24/outline';
 import api from '../api/apiClient';
 
-import { getCartSessionId } from '../utils/cart';
+import { getCartSessionId, triggerCartUpdate } from '../utils/cart';
 
 export default function ProductDetail() {
   const { productId } = useParams<{ productId: string }>();
@@ -97,6 +97,7 @@ export default function ProductDetail() {
         quantity,
       });
       setIsAdded(true);
+      triggerCartUpdate();
       setTimeout(() => setIsAdded(false), 3000);
     } catch (error: any) {
       console.error('Failed to add to cart:', error);

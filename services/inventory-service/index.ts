@@ -64,6 +64,21 @@ app.post("/stock/adjust", async (req, res) => {
   }
 });
 
+// Get stock for multiple products
+app.post("/stock/batch", async (req, res) => {
+  try {
+    const { productIds } = req.body;
+    if (!Array.isArray(productIds)) return res.status(400).json({ error: "productIds must be an array" });
+    
+    const inventory = await prisma.inventory.findMany({
+      where: { productId: { in: productIds } }
+    });
+    res.json(inventory);
+  } catch (error) {
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
 app.use(errorHandler);
 
 app.listen(PORT, () => {

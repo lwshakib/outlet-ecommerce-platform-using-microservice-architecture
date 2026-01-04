@@ -10,3 +10,7 @@ export const getCartSessionId = (): string => {
   }
   return sessionId;
 };
+
+export const triggerCartUpdate = () => {
+  window.dispatchEvent(new Event('cart-updated'));
+};

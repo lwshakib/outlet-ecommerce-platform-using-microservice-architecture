@@ -58,7 +58,12 @@ export default function OutletHeader() {
     fetchCartCount();
     // Listen for storage changes to update cart count (when items are added in other tabs)
     window.addEventListener('storage', fetchCartCount);
-    return () => window.removeEventListener('storage', fetchCartCount);
+    // Listen for custom cart-updated event (same tab)
+    window.addEventListener('cart-updated', fetchCartCount);
+    return () => {
+      window.removeEventListener('storage', fetchCartCount);
+      window.removeEventListener('cart-updated', fetchCartCount);
+    };
   }, []);
 
   const handleLogout = async () => {

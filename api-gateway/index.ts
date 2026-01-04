@@ -16,10 +16,15 @@ const PORT = process.env.PORT || 8080;
 
 app.set("trust proxy", 1);
 
+app.use(cors());
+app.use(express.json());
+app.use(cookieParser());
+app.use(morganMiddleware);
+
 // Apply rate limiting
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: (req: any) => (req.user ? 1000 : 100),
+  max: (req: any) => (req.user ? 5000 : 1000),
   message: {
     error: "Too many requests, please try again later!",
   },
@@ -28,10 +33,6 @@ const limiter = rateLimit({
 });
 
 app.use(limiter);
-app.use(morganMiddleware);
-app.use(cookieParser());
-app.use(cors());
-app.use(express.json());
 
 // Health check endpoint
 app.get("/", (req, res) => {

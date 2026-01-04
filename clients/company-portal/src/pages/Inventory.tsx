@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { 
   Search, 
   Filter, 
@@ -11,17 +12,77 @@ import {
   AlertCircle
 } from 'lucide-react';
 import { motion } from 'framer-motion';
+import api from '../api/apiClient';
+import { useCompanyStore } from '../store/useStore';
 
 const Inventory: React.FC = () => {
   const [activeTab, setActiveTab] = useState('all');
+  const [products, setProducts] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const { selectedCompany } = useCompanyStore();
 
-  const products = [
-    { id: '1', name: 'Ultra-Soft Wool Sweater', category: 'Apparel', status: 'In Stock', price: 89.99, stock: 124 },
-    { id: '2', name: 'Leather Weekend Bag', category: 'Accessories', status: 'Low Stock', price: 210.00, stock: 8 },
-    { id: '3', name: 'Minimalist Wall Clock', category: 'Home Decor', status: 'In Stock', price: 45.00, stock: 56 },
-    { id: '4', name: 'Ceramic Coffee Set', category: 'Kitchen', status: 'Out of Stock', price: 32.50, stock: 0 },
-    { id: '5', name: 'Suede Chelsea Boots', category: 'Footwear', status: 'In Stock', price: 155.00, stock: 42 },
-  ];
+  useEffect(() => {
+    const fetchData = async () => {
+      if (!selectedCompany) {
+        setLoading(false);
+        return;
+      }
+      
+      try {
+        setLoading(true);
+        // 1. Fetch products for company
+        const catalogRes = await api.get(`/catalog/products/company/${selectedCompany.id}`);
+        const productsData = catalogRes.data;
+        
+        if (productsData.length > 0) {
+          // 2. Fetch stock levels for these products
+          const productIds = productsData.map((p: any) => p.id);
+          const inventoryRes = await api.post('/inventory/stock/batch', { productIds });
+          const stockMap = inventoryRes.data.reduce((acc: any, curr: any) => {
+            acc[curr.productId] = curr.stock;
+            return acc;
+          }, {});
+          
+          // 3. Merge data
+          const merged = productsData.map((p: any) => ({
+            ...p,
+            stock: stockMap[p.id] || 0,
+            status: stockMap[p.id] > 50 ? 'In Stock' : stockMap[p.id] > 0 ? 'Low Stock' : 'Out of Stock'
+          }));
+          setProducts(merged);
+        } else {
+          setProducts([]);
+        }
+      } catch (error) {
+        console.error('Failed to fetch inventory:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    fetchData();
+  }, [selectedCompany]);
+
+  if (!selectedCompany) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[400px] text-center">
+        <Package size={64} className="text-muted-foreground/20 mb-4" />
+        <h2 className="text-2xl font-bold">No Company Selected</h2>
+        <p className="text-muted-foreground mt-2">Please select a company from the dashboard to manage inventory.</p>
+        <Link to="/companies" className="mt-6 bg-primary text-primary-foreground px-6 py-2 rounded-xl font-bold">
+           My Companies
+        </Link>
+      </div>
+    );
+  }
+
+  if (loading) {
+     return (
+        <div className="flex justify-center items-center h-64">
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
+        </div>
+     );
+  }
 
   return (
     <div className="space-y-8">
@@ -107,7 +168,7 @@ const Inventory: React.FC = () => {
                       <span className="font-semibold">{product.name}</span>
                     </div>
                   </td>
-                  <td className="px-6 py-4 text-sm">{product.category}</td>
+                  <td className="px-6 py-4 text-sm">{product.category?.name || 'Uncategorized'}</td>
                   <td className="px-6 py-4">
                     <div className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold ${
                       product.status === 'In Stock' ? 'bg-green-500/10 text-green-500' :

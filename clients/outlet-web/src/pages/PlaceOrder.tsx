@@ -1,8 +1,14 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import api from '../api/apiClient';
+import { getCartSessionId } from '../utils/cart';
 
 export default function PlaceOrder() {
   const navigate = useNavigate();
+  const [cartItems, setCartItems] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
   const [formData, setFormData] = useState({
     email: '',
     firstName: '',
@@ -19,6 +25,28 @@ export default function PlaceOrder() {
     cvv: '',
   });
 
+  useEffect(() => {
+    const fetchCart = async () => {
+      try {
+        const sessionId = getCartSessionId();
+        const response = await api.get(`/cart/${sessionId}`);
+        setCartItems(response.data.items || []);
+        
+        // Populate email if user is logged in
+        const userStr = localStorage.getItem('user');
+        if (userStr) {
+          const user = JSON.parse(userStr);
+          setFormData(prev => ({ ...prev, email: user.email }));
+        }
+      } catch (error) {
+        console.error('Failed to fetch cart:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchCart();
+  }, []);
+
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => {
@@ -28,19 +56,78 @@ export default function PlaceOrder() {
     });
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const subtotal = cartItems.reduce(
+    (sum, item) => sum + (item.price || 0) * (item.quantity || 0),
+    0
+  );
+  const shipping = subtotal > 0 && subtotal < 100 ? 10 : 0;
+  const tax = subtotal * 0.1;
+  const total = subtotal + shipping + tax;
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Handle order placement logic here
-    console.log('Order placed:', formData);
-    // In a real app, you would submit to an API
-    // For Stripe, you would integrate with Stripe API
-    // For Cash On Delivery, you would just create the order
-    const paymentMethodName =
-      formData.paymentMethod === 'cod' ? 'Cash On Delivery' : 'Stripe';
-    // In a real app, you would submit to an API here
-    // For now, we'll just navigate to order success page
-    navigate('/order-success');
+    setIsSubmitting(true);
+
+    try {
+      const userStr = localStorage.getItem('user');
+      const user = userStr ? JSON.parse(userStr) : null;
+      
+      // 1. Create the order
+      const orderRes = await api.post('/orders', {
+        userId: user?.id || 'guest',
+        items: cartItems.map(item => ({
+          productId: item.productId,
+          name: item.name,
+          image: item.image,
+          quantity: item.quantity,
+          price: item.price
+        })),
+        shippingAddress: `${formData.address}, ${formData.city}, ${formData.state} ${formData.zipCode}, ${formData.country}`,
+        totalAmount: total
+      });
+
+      const order = orderRes.data;
+
+      if (formData.paymentMethod === 'stripe') {
+        // 2. Initiate Stripe payment
+        const paymentRes = await api.post('/payments/create-checkout-session', {
+          orderId: order.id,
+          items: cartItems.map(item => ({
+            name: item.name,
+            price: item.price,
+            quantity: item.quantity
+          })),
+          successUrl: `${window.location.origin}/order-success`,
+          cancelUrl: `${window.location.origin}/place-order`
+        });
+
+        if (paymentRes.data.url) {
+          window.location.href = paymentRes.data.url;
+        } else {
+          throw new Error('Failed to get payment URL');
+        }
+      } else {
+        // Cash on Delivery
+        // 2. Notify Cart Service to clear cart? Or just navigate
+        const sessionId = getCartSessionId();
+        await api.post('/cart/checkout', { sessionId });
+        navigate('/order-success');
+      }
+    } catch (error: any) {
+      console.error('Order placement failed:', error);
+      alert(error.response?.data?.error || 'Order placement failed');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
+
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <div className="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-indigo-500"></div>
+      </div>
+    );
+  }
 
   return (
     <div className="bg-white">
@@ -356,10 +443,7 @@ export default function PlaceOrder() {
                           type="text"
                           id="expiryDate"
                           name="expiryDate"
-                          required={
-                            formData.paymentMethod === 'card' ||
-                            formData.paymentMethod === 'stripe'
-                          }
+                          required={formData.paymentMethod === 'stripe'}
                           value={formData.expiryDate}
                           onChange={handleChange}
                           className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm px-3 py-2 border"
@@ -380,10 +464,7 @@ export default function PlaceOrder() {
                           type="text"
                           id="cvv"
                           name="cvv"
-                          required={
-                            formData.paymentMethod === 'card' ||
-                            formData.paymentMethod === 'stripe'
-                          }
+                          required={formData.paymentMethod === 'stripe'}
                           value={formData.cvv}
                           onChange={handleChange}
                           className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm px-3 py-2 border"
@@ -425,22 +506,22 @@ export default function PlaceOrder() {
               <dl className="mt-6 space-y-4">
                 <div className="flex items-center justify-between">
                   <dt className="text-sm text-gray-600">Subtotal</dt>
-                  <dd className="text-sm font-medium text-gray-900">$118.00</dd>
+                  <dd className="text-sm font-medium text-gray-900">${subtotal.toFixed(2)}</dd>
                 </div>
                 <div className="flex items-center justify-between border-t border-gray-200 pt-4">
                   <dt className="text-sm text-gray-600">Shipping</dt>
-                  <dd className="text-sm font-medium text-gray-900">$10.00</dd>
+                  <dd className="text-sm font-medium text-gray-900">${shipping.toFixed(2)}</dd>
                 </div>
                 <div className="flex items-center justify-between border-t border-gray-200 pt-4">
                   <dt className="text-sm text-gray-600">Tax</dt>
-                  <dd className="text-sm font-medium text-gray-900">$12.80</dd>
+                  <dd className="text-sm font-medium text-gray-900">${tax.toFixed(2)}</dd>
                 </div>
                 <div className="flex items-center justify-between border-t border-gray-200 pt-4">
                   <dt className="text-base font-medium text-gray-900">
                     Order total
                   </dt>
                   <dd className="text-base font-medium text-gray-900">
-                    $140.80
+                    ${total.toFixed(2)}
                   </dd>
                 </div>
               </dl>
@@ -448,9 +529,14 @@ export default function PlaceOrder() {
               <div className="mt-6">
                 <button
                   type="submit"
-                  className="w-full rounded-md border border-transparent bg-indigo-600 px-4 py-3 text-base font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:ring-offset-gray-50"
+                  disabled={isSubmitting || cartItems.length === 0}
+                  className={`w-full rounded-md border border-transparent px-4 py-3 text-base font-medium text-white shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:ring-offset-gray-50 ${
+                    isSubmitting || cartItems.length === 0
+                      ? 'bg-gray-400 cursor-not-allowed'
+                      : 'bg-indigo-600 hover:bg-indigo-700'
+                  }`}
                 >
-                  Place Order
+                  {isSubmitting ? 'Processing...' : 'Place Order'}
                 </button>
               </div>
 

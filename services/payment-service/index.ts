@@ -1,14 +1,25 @@
-﻿import express from "express";
+﻿import "dotenv/config";
+import express from "express";
 import cors from "cors";
 import morganMiddleware from "./src/middlewares/morgan.middleware";
 import { errorHandler } from "./src/middlewares/error.middleware";
 import logger from "./src/logger/winston.logger";
+import paymentRoutes from "./src/routes/payment.routes";
 
 const app = express();
 const PORT = process.env.PORT || 3008;
 
 app.use(cors());
-app.use(express.json());
+
+// Webhook route needs to bypass global json() middleware
+app.use("/", (req, res, next) => {
+  if (req.originalUrl === "/webhook") {
+    next();
+  } else {
+    express.json()(req, res, next);
+  }
+});
+
 app.use(morganMiddleware);
 
 // Health check endpoint
@@ -19,6 +30,9 @@ app.get("/", (req, res) => {
 app.get("/health", (req, res) => {
   res.json({ status: "Payment Service is healthy" });
 });
+
+// Routes
+app.use("/", paymentRoutes);
 
 app.use(errorHandler);
 
