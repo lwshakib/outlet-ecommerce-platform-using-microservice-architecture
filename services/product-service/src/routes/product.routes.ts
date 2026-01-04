@@ -4,7 +4,10 @@ import {
   getProductById, 
   createProduct, 
   createCompany, 
-  getCompaniesByOwner 
+  getCompaniesByOwner,
+  getCompanyById,
+  getAllCompanies,
+  updateCompany
 } from "../controllers/product.controller";
 
 const router = Router();
@@ -16,6 +19,9 @@ router.post("/", createProduct);
 
 // Company routes
 router.post("/companies", createCompany);
+router.get("/companies", getAllCompanies);
 router.get("/companies/owner/:ownerId", getCompaniesByOwner);
+router.get("/companies/:id", getCompanyById);
+router.patch("/companies/:id", updateCompany);
 
 export default router;

@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import HeroSlider from '../components/HeroSlider';
 import api from '../api/apiClient';
+import { MagnifyingGlassIcon } from '@heroicons/react/24/outline';
 
 interface Product {
   id: string;
@@ -54,7 +55,7 @@ export default function Home() {
 
       {/* Latest Collections Section */}
       <div className="mx-auto max-w-2xl px-4 py-16 sm:px-6 sm:py-24 lg:max-w-7xl lg:px-8">
-        <div className="mb-12 flex justify-between items-end">
+        <div className="mb-12 flex flex-col md:flex-row md:items-end justify-between gap-6">
           <div>
             <h2 className="text-3xl font-bold tracking-tight text-gray-900">
               Latest Collections
@@ -63,10 +64,32 @@ export default function Home() {
               Discover our newest arrivals from the world's most prestigious brands
             </p>
           </div>
-          <Link to="#" className="hidden text-sm font-semibold text-indigo-600 hover:text-indigo-500 sm:block">
-            Browse all products
-            <span aria-hidden="true"> &rarr;</span>
-          </Link>
+          
+          <div className="flex flex-col sm:flex-row gap-4 w-full md:w-auto">
+            <form 
+              onSubmit={(e: any) => {
+                e.preventDefault();
+                const query = e.target.search.value;
+                if (query.trim()) {
+                  window.location.href = `/search?q=${encodeURIComponent(query.trim())}`;
+                }
+              }}
+              className="relative w-full sm:w-80"
+            >
+              <input
+                name="search"
+                type="text"
+                placeholder="Search masterpieces..."
+                className="w-full pl-10 pr-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition-all"
+              />
+              <MagnifyingGlassIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
+            </form>
+
+            <Link to="/search" className="hidden text-sm font-semibold text-indigo-600 hover:text-indigo-500 sm:block self-end pb-2">
+              Browse all products
+              <span aria-hidden="true"> &rarr;</span>
+            </Link>
+          </div>
         </div>
 
         <div className="grid grid-cols-1 gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-4 xl:gap-x-8">

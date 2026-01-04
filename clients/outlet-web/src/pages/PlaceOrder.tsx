@@ -77,6 +77,7 @@ export default function PlaceOrder() {
         userId: user?.id || 'guest',
         items: cartItems.map(item => ({
           productId: item.productId,
+          companyId: item.companyId,
           name: item.name,
           image: item.image,
           quantity: item.quantity,

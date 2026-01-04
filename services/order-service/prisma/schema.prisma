@@ -29,6 +29,7 @@ model OrderItem {
   orderId   String
   order     Order  @relation(fields: [orderId], references: [id])
   productId String
+  companyId String
   name      String
   image     String
   quantity  Int

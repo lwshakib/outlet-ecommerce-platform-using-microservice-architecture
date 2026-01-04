@@ -72,6 +72,7 @@ app.post("/add", async (req, res) => {
     } else {
       cart.items.push({ 
         productId, 
+        companyId: product.companyId,
         quantity,
         name: product.name,
         price: product.price,

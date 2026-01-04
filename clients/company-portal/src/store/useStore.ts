@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { User, Company } from '../types';
+import type { User, Company } from '../types';
 
 interface AuthState {
   user: User | null;
@@ -10,18 +10,32 @@ interface AuthState {
   logout: () => void;
 }
 
+const getInitialUser = () => {
+  try {
+    const savedUser = localStorage.getItem('user');
+    return savedUser ? JSON.parse(savedUser) : null;
+  } catch {
+    return null;
+  }
+};
+
 export const useAuthStore = create<AuthState>((set) => ({
-  user: null,
-  isAuthenticated: false,
+  user: getInitialUser(),
+  isAuthenticated: !!localStorage.getItem('token'),
   token: localStorage.getItem('token'),
-  setUser: (user) => set({ user, isAuthenticated: !!user }),
+  setUser: (user) => {
+    if (user) localStorage.setItem('user', JSON.stringify(user));
+    else localStorage.removeItem('user');
+    set({ user, isAuthenticated: !!user });
+  },
   setToken: (token) => {
     if (token) localStorage.setItem('token', token);
     else localStorage.removeItem('token');
-    set({ token });
+    set({ token, isAuthenticated: !!token });
   },
   logout: () => {
     localStorage.removeItem('token');
+    localStorage.removeItem('user');
     set({ user: null, isAuthenticated: false, token: null });
   },
 }));

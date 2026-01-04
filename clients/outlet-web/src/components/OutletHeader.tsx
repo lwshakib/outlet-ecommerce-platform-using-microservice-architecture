@@ -308,13 +308,28 @@ export default function OutletHeader() {
 
                 {/* Search */}
                 <div className="flex lg:ml-6">
-                  <a href="#" className="p-2 text-gray-400 hover:text-gray-500">
-                    <span className="sr-only">Search</span>
+                  <form 
+                    onSubmit={(e: any) => {
+                      e.preventDefault();
+                      const query = e.target.search.value;
+                      if (query.trim()) {
+                        window.location.href = `/search?q=${encodeURIComponent(query.trim())}`;
+                      }
+                    }}
+                    className="relative"
+                  >
+                    <input
+                      name="search"
+                      type="text"
+                      placeholder="Search..."
+                      className="w-32 lg:w-48 pl-8 pr-3 py-1.5 text-sm bg-gray-50 border border-transparent rounded-full focus:bg-white focus:border-indigo-500 focus:w-64 outline-none transition-all duration-300"
+                    />
                     <MagnifyingGlassIcon
                       aria-hidden="true"
-                      className="size-6"
+                      className="absolute left-2.5 top-1/2 -translate-y-1/2 size-4 text-gray-400"
                     />
-                  </a>
+                    <button type="submit" className="sr-only">Search</button>
+                  </form>
                 </div>
 
                 {/* Cart */}

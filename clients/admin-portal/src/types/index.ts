@@ -1,15 +1,14 @@
 export interface User {
   id: string;
   email: string;
-  name: string;
+  role: 'USER' | 'ADMIN';
 }
 
 export interface Company {
   id: string;
   name: string;
-  ownerId: string;
   description?: string;
-  logo?: string;
+  ownerId: string;
   location?: string;
   industry?: string;
   createdAt: string;
@@ -18,10 +17,16 @@ export interface Company {
 export interface Product {
   id: string;
   name: string;
-  description: string;
+  description?: string;
   price: number;
-  stock: number;
-  companyId: string;
-  category: string;
   images: string[];
+  categoryId: string;
+  companyId: string;
+  companyName?: string;
+  createdAt: string;
+}
+
+export interface Category {
+  id: string;
+  name: string;
 }

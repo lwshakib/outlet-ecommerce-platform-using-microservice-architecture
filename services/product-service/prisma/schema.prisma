@@ -18,6 +18,8 @@ model Company {
   name        String
   description String?
   ownerId     String
+  location    String?
+  industry    String?
   products    Product[]
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt

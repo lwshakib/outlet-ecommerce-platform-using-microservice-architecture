@@ -18,10 +18,22 @@ app.get("/", (req, res) => {
   res.json({ message: "Catalog Service is running!" });
 });
 
-// Get all products with categories
+// Get all products with categories & search
 app.get("/products", async (req, res) => {
   try {
+    const { q } = req.query;
+    
+    const where: any = {};
+    if (q) {
+      where.OR = [
+        { name: { contains: String(q), mode: 'insensitive' } },
+        { description: { contains: String(q), mode: 'insensitive' } },
+        { companyName: { contains: String(q), mode: 'insensitive' } },
+      ];
+    }
+
     const products = await prisma.product.findMany({
+      where,
       include: {
         category: true
       }

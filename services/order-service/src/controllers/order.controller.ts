@@ -19,6 +19,7 @@ export const createOrder = async (req: Request, res: Response) => {
         items: {
           create: items.map((item: any) => ({
             productId: item.productId,
+            companyId: item.companyId,
             name: item.name,
             image: item.image,
             quantity: item.quantity,
@@ -90,6 +91,31 @@ export const updateOrderStatus = async (req: Request, res: Response) => {
     res.json(order);
   } catch (error: any) {
     logger.error("Error updating order status:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
+
+export const getOrdersByCompany = async (req: Request, res: Response) => {
+  try {
+    const { companyId } = req.params;
+    
+    const orders = await prisma.order.findMany({
+      where: {
+        items: {
+          some: { companyId }
+        }
+      },
+      include: {
+        items: {
+          where: { companyId }
+        }
+      },
+      orderBy: { createdAt: "desc" },
+    });
+
+    res.json(orders);
+  } catch (error: any) {
+    logger.error("Error fetching company orders:", error);
     res.status(500).json({ error: "Internal server error" });
   }
 };

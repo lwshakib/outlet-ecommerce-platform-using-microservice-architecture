@@ -1,9 +1,8 @@
-import { Routes, Route } from 'react-router-dom';
+import { Routes, Route, Navigate } from 'react-router-dom';
 import OutletHeader from './components/OutletHeader';
 import Footer from './components/Footer';
 import Home from './pages/Home';
-import SignIn from './pages/SignIn';
-import CreateAccount from './pages/CreateAccount';
+import Auth from './pages/Auth';
 import VerifyEmail from './pages/VerifyEmail';
 import Cart from './pages/Cart';
 import PlaceOrder from './pages/PlaceOrder';
@@ -12,6 +11,7 @@ import Orders from './pages/Orders';
 import ProductDetail from './pages/ProductDetail';
 import ForgotPassword from './pages/ForgotPassword';
 import ResetPassword from './pages/ResetPassword';
+import Search from './pages/Search';
 
 export function App() {
   return (
@@ -20,8 +20,10 @@ export function App() {
       <main className="flex-1">
         <Routes>
           <Route path="/" element={<Home />} />
-          <Route path="/sign-in" element={<SignIn />} />
-          <Route path="/create-account" element={<CreateAccount />} />
+          <Route path="/search" element={<Search />} />
+          <Route path="/auth" element={<Auth />} />
+          <Route path="/sign-in" element={<Navigate to="/auth" replace />} />
+          <Route path="/create-account" element={<Navigate to="/auth" replace />} />
           <Route path="/verify-email" element={<VerifyEmail />} />
           <Route path="/cart" element={<Cart />} />
           <Route path="/place-order" element={<PlaceOrder />} />
