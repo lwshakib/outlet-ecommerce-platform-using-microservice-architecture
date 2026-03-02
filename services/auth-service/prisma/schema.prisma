@@ -16,6 +16,10 @@ model User {
   password         String?
   role             Role     @default(USER)
   isVerified       Boolean  @default(false)
+  name             String?
+  image            String?
+  phone            String?
+  address          String?
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
 

@@ -47,13 +47,12 @@ app.get("/health", (req, res) => {
 // Proxy routes for microservices
 app.use("/auth", proxy("http://localhost:3001")); // auth-service
 app.use("/email", proxy("http://localhost:3002")); // email-service
-app.use("/users", proxy("http://localhost:3003")); // user-service
+app.use("/users", proxy("http://localhost:3001")); // user-service (merged into auth)
 app.use("/catalog", proxy("http://localhost:3009")); // catalog (merged)
 app.use("/inventory", proxy("http://localhost:3009")); // inventory (merged)
 app.use("/cart", proxy("http://localhost:3009")); // cart (merged)
-app.use("/orders", proxy("http://localhost:3009")); // orders (merged)
-app.use("/payments", proxy("http://localhost:3009")); // payments (merged)
-
+app.use("/orders", proxy("http://localhost:3008")); // orders-service
+app.use("/payments", proxy("http://localhost:3008")); // order-service
 app.use("/products", proxy("http://localhost:3009")); // products
 
 

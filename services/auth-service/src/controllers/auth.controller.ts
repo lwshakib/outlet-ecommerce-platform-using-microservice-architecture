@@ -5,7 +5,7 @@ import { generateAccessToken, generateRefreshToken, verifyRefreshToken } from ".
 import { sendEmailGrpc } from "../grpc/email.client";
 import { sendToQueue } from "../rabbitmq";
 
-const USER_SERVICE_URL = process.env.USER_SERVICE_URL || "http://localhost:3003";
+
 
 const recordLoginHistory = async (userId: string, req: Request, status: "SUCCESS" | "FAILED", method: string) => {
   await prisma.loginHistory.create({
@@ -72,23 +72,9 @@ export const signup = async (req: Request, res: Response) => {
         email,
         password: hashedPassword,
         isVerified: false,
+        name: name || email.split("@")[0],
       },
     });
-
-    // Create user in user-service
-    try {
-      await fetch(`${USER_SERVICE_URL}/users`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          id: user.id,
-          email: user.email,
-          name: name || email.split("@")[0],
-        }),
-      });
-    } catch (err) {
-      console.error("Failed to create user in user-service:", err);
-    }
 
     // Send verification email via gRPC
     try {

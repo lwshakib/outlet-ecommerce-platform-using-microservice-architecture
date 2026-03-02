@@ -2,6 +2,7 @@ import "dotenv/config";
 import express from "express";
 import cors from "cors";
 import authRoutes from "./src/routes/auth.routes";
+import userRoutes from "./src/routes/user.routes";
 import morganMiddleware from "./src/middlewares/morgan.middleware";
 import { errorHandler } from "./src/middlewares/error.middleware";
 import logger from "./src/logger/winston.logger";
@@ -15,11 +16,12 @@ app.use(morganMiddleware);
 
 // Health check endpoint
 app.get("/health", (req, res) => {
-  res.json({ status: "Auth Service is healthy" });
+  res.json({ status: "Auth & User Service is healthy" });
 });
 
-// Auth routes
+// Routes
 app.use("/", authRoutes);
+app.use("/users", userRoutes);
 
 app.use(errorHandler);
 

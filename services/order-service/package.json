@@ -1,36 +1,36 @@
 {
-  "name": "product-service",
+  "name": "order-service",
   "module": "index.ts",
   "type": "module",
   "private": true,
   "devDependencies": {
     "@types/bun": "latest",
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.6",
     "@types/morgan": "^1.9.10",
-    "@types/node": "^25.0.3",
-    "@types/pg": "^8.16.0",
+    "@types/node": "^25.3.3",
+    "@types/pg": "^8.18.0",
+    "@types/uuid": "^11.0.0",
     "nodemon": "^3.1.11",
-    "prisma": "^7.2.0",
+    "prisma": "^7.4.2",
     "tsx": "^4.21.0"
   },
   "peerDependencies": {
     "typescript": "^5"
   },
   "dependencies": {
-    "@grpc/grpc-js": "^1.14.3",
-    "@grpc/proto-loader": "^0.8.0",
-    "@prisma/adapter-pg": "^7.2.0",
-    "@prisma/client": "^7.2.0",
-    "@types/cors": "^2.8.19",
-    "@types/express": "^5.0.6",
-    "@types/uuid": "^11.0.0",
+    "@prisma/adapter-pg": "^7.4.2",
+    "@prisma/client": "^7.4.2",
+    "axios": "^1.13.2",
     "cors": "^2.8.5",
-    "dotenv": "^17.2.3",
+    "dotenv": "^17.3.1",
     "express": "^5.2.1",
-    "ioredis": "^5.6.0",
     "morgan": "^1.10.1",
-    "pg": "^8.16.3",
+    "pg": "^8.19.0",
+    "stripe": "^20.4.0",
     "uuid": "^13.0.0",
-    "winston": "^3.19.0"
+    "winston": "^3.19.0",
+    "ioredis": "^5.6.0"
   },
   "scripts": {
     "dev": "nodemon --exec tsx index.ts",
@@ -38,7 +38,6 @@
     "db:generate": "bun x prisma generate",
     "db:migrate": "bun x prisma generate && bun x prisma migrate dev --name init",
     "db:reset": "bun x prisma migrate reset",
-    "db:studio": "bun x prisma studio",
-    "seed": "tsx src/seed.ts"
+    "db:studio": "bun x prisma studio"
   }
 }

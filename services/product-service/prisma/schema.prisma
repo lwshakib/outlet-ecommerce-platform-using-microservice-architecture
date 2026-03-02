@@ -5,7 +5,7 @@
 // Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
 
 generator client {
-  provider = "prisma-client-js"
+  provider = "prisma-client"
   output   = "../generated/prisma"
 }
 
@@ -58,51 +58,5 @@ model Inventory {
   updatedAt DateTime @updatedAt
 }
 
-model Order {
-  id              String      @id @default(uuid())
-  userId          String
-  totalAmount     Float
-  status          OrderStatus @default(PENDING)
-  shippingAddress String
-  items           OrderItem[]
-  createdAt       DateTime    @default(now())
-  updatedAt       DateTime    @updatedAt
-}
-
-model OrderItem {
-  id        String @id @default(uuid())
-  orderId   String
-  order     Order  @relation(fields: [orderId], references: [id])
-  productId String
-  companyId String
-  name      String
-  image     String
-  quantity  Int
-  price     Float
-}
-
-enum OrderStatus {
-  PENDING
-  PAID
-  SHIPPED
-  DELIVERED
-  CANCELLED
-}
-
-model Payment {
-  id               String        @id @default(uuid())
-  orderId          String        @unique
-  stripeSessionId  String?
-  amount           Float
-  status           PaymentStatus @default(PENDING)
-  createdAt        DateTime      @default(now())
-  updatedAt        DateTime      @updatedAt
-}
-
-enum PaymentStatus {
-  PENDING
-  SUCCESS
-  FAILED
-}
 
 
