@@ -24,12 +24,6 @@ procs:
     shell: "bun dev"
     autoRestart: true
 
-  order-service:
-    cwd: services/order-service
-    shell: "bun dev"
-    autoRestart: true
-
-
   product-service:
     cwd: services/product-service
     shell: "bun dev"
