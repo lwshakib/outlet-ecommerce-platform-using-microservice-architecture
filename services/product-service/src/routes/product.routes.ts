@@ -2,20 +2,31 @@ import { Router } from "express";
 import { 
   getAllProducts, 
   getProductById, 
-  createProduct, 
+  createProduct,
+  updateProduct,
+  deleteProduct,
   createCompany, 
   getCompaniesByOwner,
   getCompanyById,
   getAllCompanies,
-  updateCompany
+  updateCompany,
+  getAllCategories,
+  createCategory
 } from "../controllers/product.controller";
 
 const router = Router();
 
 // Product routes
-router.get("/", getAllProducts);
-router.get("/:id", getProductById);
-router.post("/", createProduct);
+router.get("/products", getAllProducts);
+router.get("/products/:id", getProductById);
+router.post("/products", createProduct);
+router.put("/products/:id", updateProduct);
+router.delete("/products/:id", deleteProduct);
+
+// Category routes
+router.get("/categories", getAllCategories);
+router.post("/categories", createCategory);
+
 
 // Company routes
 router.post("/companies", createCompany);

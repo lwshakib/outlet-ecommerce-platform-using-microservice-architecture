@@ -2,18 +2,41 @@ import type { Request, Response, NextFunction } from "express";
 import { prisma } from "../lib/prisma";
 import logger from "../logger/winston.logger";
 
+// --- Product Logic ---
+
 export const getAllProducts = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const { category, companyId } = req.query;
+    const { category, categoryId, companyId, q } = req.query;
+    
+    const where: any = {};
+    if (q) {
+      where.OR = [
+        { name: { contains: String(q), mode: 'insensitive' } },
+        { description: { contains: String(q), mode: 'insensitive' } },
+      ];
+    }
+    if (categoryId) {
+      where.categoryId = String(categoryId);
+    } else if (category) {
+      where.category = {
+        name: { contains: String(category), mode: 'insensitive' }
+      };
+    }
+    if (companyId) {
+      where.companyId = String(companyId);
+    }
+
     const products = await prisma.product.findMany({
-      where: {
-        ...(category ? { category: category as string } : {}),
-        ...(companyId ? { companyId: companyId as string } : {}),
-      },
+      where,
       include: {
-        company: true
-      }
+        category: true,
+        company: true,
+        inventory: true
+      },
+      orderBy: { createdAt: 'desc' }
     });
+
+    // Format for existing UI expectations
     res.json(products);
   } catch (error) {
     next(error);
@@ -24,7 +47,11 @@ export const getProductById = async (req: Request, res: Response, next: NextFunc
   try {
     const product = await prisma.product.findUnique({
       where: { id: req.params.id },
-      include: { company: true }
+      include: { 
+        category: true,
+        company: true,
+        inventory: true
+      }
     });
     if (!product) {
       return res.status(404).json({ message: "Product not found" });
@@ -37,9 +64,26 @@ export const getProductById = async (req: Request, res: Response, next: NextFunc
 
 export const createProduct = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const { name, description, price, images, category, companyId } = req.body;
+    const { name, description, price, images, categoryId, companyId, initialStock } = req.body;
+    
     const product = await prisma.product.create({
-      data: { name, description, price: parseFloat(price), images, category, companyId }
+      data: { 
+        name, 
+        description, 
+        price: parseFloat(price), 
+        images: images || [], 
+        categoryId, 
+        companyId,
+        inventory: {
+          create: {
+            stock: initialStock || 0
+          }
+        }
+      },
+      include: {
+        inventory: true,
+        category: true
+      }
     });
     res.status(201).json(product);
   } catch (error) {
@@ -47,16 +91,75 @@ export const createProduct = async (req: Request, res: Response, next: NextFunct
   }
 };
 
+export const updateProduct = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { id } = req.params;
+    const { name, description, price, images, categoryId } = req.body;
+    const product = await prisma.product.update({
+      where: { id },
+      data: { 
+        ...(name && { name }),
+        ...(description && { description }),
+        ...(price && { price: parseFloat(price) }),
+        ...(images && { images }),
+        ...(categoryId && { categoryId })
+      }
+    });
+    res.json(product);
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const deleteProduct = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { id } = req.params;
+    // Delete inventory first if not cascading
+    await prisma.inventory.deleteMany({ where: { productId: id } });
+    await prisma.product.delete({ where: { id } });
+    res.status(204).send();
+  } catch (error) {
+    next(error);
+  }
+};
+
+// --- Category Logic ---
+
+export const getAllCategories = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const categories = await prisma.category.findMany({
+      orderBy: { name: 'asc' }
+    });
+    res.json(categories);
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const createCategory = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { name, description } = req.body;
+    const category = await prisma.category.create({
+      data: { name, description }
+    });
+    res.status(201).json(category);
+  } catch (error) {
+    next(error);
+  }
+};
+
+// --- Company Logic ---
+
 export const createCompany = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const { name, description, ownerId, industry } = req.body;
+    const { name, description, ownerId, industry, location } = req.body;
     const company = await prisma.company.create({
       data: { 
         name, 
         description, 
         ownerId, 
         industry,
-        location: 'New York, USA' // Default location for now
+        location: location || 'New York, USA'
       }
     });
     res.status(201).json(company);

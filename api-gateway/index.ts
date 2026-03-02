@@ -48,12 +48,17 @@ app.get("/health", (req, res) => {
 app.use("/auth", proxy("http://localhost:3001")); // auth-service
 app.use("/email", proxy("http://localhost:3002")); // email-service
 app.use("/users", proxy("http://localhost:3003")); // user-service
-app.use("/catalog", proxy("http://localhost:3004")); // catalog-service
-app.use("/inventory", proxy("http://localhost:3005")); // inventory-service
-app.use("/cart", proxy("http://localhost:3006")); // cart-service
-app.use("/orders", proxy("http://localhost:3007")); // order-service
-app.use("/payments", proxy("http://localhost:3008")); // payment-service
-app.use("/products", proxy("http://localhost:3009")); // product-service
+app.use("/catalog", proxy("http://localhost:3009")); // catalog (merged)
+app.use("/inventory", proxy("http://localhost:3009")); // inventory (merged)
+app.use("/cart", proxy("http://localhost:3009")); // cart (merged)
+app.use("/orders", proxy("http://localhost:3009")); // orders (merged)
+app.use("/payments", proxy("http://localhost:3009")); // payments (merged)
+
+app.use("/products", proxy("http://localhost:3009")); // products
+
+
+
+
 
 app.use(errorHandler);
 

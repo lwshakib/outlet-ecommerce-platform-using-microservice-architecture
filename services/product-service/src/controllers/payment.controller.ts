@@ -1,7 +1,7 @@
 import "dotenv/config";
-import type { Request, Response } from "express";
+import type { Request, Response, NextFunction } from "express";
 import Stripe from "stripe";
-import { prisma } from "../db";
+import { prisma } from "../lib/prisma";
 import logger from "../logger/winston.logger";
 
 if (!process.env.STRIPE_SECRET_KEY) {
@@ -12,7 +12,7 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || "dummy_key", {
   apiVersion: "2025-01-27.acacia",
 });
 
-export const createCheckoutSession = async (req: Request, res: Response) => {
+export const createCheckoutSession = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { orderId, items, successUrl, cancelUrl } = req.body;
 
@@ -57,11 +57,11 @@ export const createCheckoutSession = async (req: Request, res: Response) => {
     res.json({ id: session.id, url: session.url });
   } catch (error: any) {
     logger.error("Error creating checkout session:", error);
-    res.status(500).json({ error: error.message || "Internal server error" });
+    next(error);
   }
 };
 
-export const handleWebhook = async (req: Request, res: Response) => {
+export const handleWebhook = async (req: Request, res: Response, next: NextFunction) => {
   const sig = req.headers["stripe-signature"] as string;
   const endpointSecret = process.env.STRIPE_WEBHOOK_SECRET;
 
@@ -83,15 +83,14 @@ export const handleWebhook = async (req: Request, res: Response) => {
         data: { status: "SUCCESS" },
       });
 
-      // Notify Order Service to update status to PAID
+      // Update Order Status directly since we merged services
       try {
-        await fetch(`${process.env.ORDER_SERVICE_URL || "http://localhost:3007"}/${orderId}/status`, {
-          method: "PATCH",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ status: "PAID" }),
+        await prisma.order.update({
+          where: { id: orderId },
+          data: { status: "PAID" },
         });
       } catch (err) {
-        logger.error("Failed to update order status in order-service:", err);
+        logger.error("Failed to update order status:", err);
       }
     }
   }

@@ -24,35 +24,17 @@ procs:
     shell: "bun dev"
     autoRestart: true
 
-  catalog-service:
-    cwd: services/catalog-service
-    shell: "bun dev"
-    autoRestart: true
-
-  inventory-service:
-    cwd: services/inventory-service
-    shell: "bun dev"
-    autoRestart: true
-
-  cart-service:
-    cwd: services/cart-service
-    shell: "bun dev"
-    autoRestart: true
-
   order-service:
     cwd: services/order-service
     shell: "bun dev"
     autoRestart: true
 
-  payment-service:
-    cwd: services/payment-service
-    shell: "bun dev"
-    autoRestart: true
 
   product-service:
     cwd: services/product-service
     shell: "bun dev"
     autoRestart: true
+
 
 
   outlet-web:
